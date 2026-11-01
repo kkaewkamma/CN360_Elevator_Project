@@ -1,0 +1,942 @@
+[
+    {
+        "id": "5241ceb3161245c8",
+        "type": "tab",
+        "label": "Flow 1",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "ca05771492c25f04",
+        "type": "tab",
+        "label": "CN360 Complete Elevator System",
+        "disabled": false,
+        "info": "ระบบควบคุมลิฟต์ Destination Dispatch ครบทุกข้อย่อย CN360 Midterm 1/2569"
+    },
+    {
+        "id": "ui_tab_main",
+        "type": "ui_tab",
+        "name": "Elevator Control System",
+        "icon": "dashboard",
+        "order": 1
+    },
+    {
+        "id": "ui_group_hall",
+        "type": "ui_group",
+        "name": "Hall Unit",
+        "tab": "ui_tab_main",
+        "order": 1,
+        "disp": true,
+        "width": "6",
+        "collapse": false
+    },
+    {
+        "id": "ui_group_status",
+        "type": "ui_group",
+        "name": "Elevator Status",
+        "tab": "ui_tab_main",
+        "order": 2,
+        "disp": true,
+        "width": "6",
+        "collapse": false
+    },
+    {
+        "id": "ui_group_emergency",
+        "type": "ui_group",
+        "name": "Emergency Control",
+        "tab": "ui_tab_main",
+        "order": 3,
+        "disp": true,
+        "width": "6",
+        "collapse": false
+    },
+    {
+        "id": "da239eb721aef8e7",
+        "type": "ui_base",
+        "theme": {
+            "name": "theme-light",
+            "lightTheme": {
+                "default": "#0094CE",
+                "baseColor": "#0094CE",
+                "baseFont": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif",
+                "edited": false
+            },
+            "darkTheme": {
+                "default": "#097479",
+                "baseColor": "#097479",
+                "baseFont": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif",
+                "edited": false
+            },
+            "customTheme": {
+                "name": "Untitled Theme 1",
+                "default": "#4B7930",
+                "baseColor": "#4B7930",
+                "baseFont": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif"
+            },
+            "themeState": {
+                "base-color": {
+                    "default": "#0094CE",
+                    "value": "#0094CE",
+                    "edited": false
+                },
+                "page-titlebar-backgroundColor": {
+                    "value": "#0094CE",
+                    "edited": false
+                },
+                "page-backgroundColor": {
+                    "value": "#fafafa",
+                    "edited": false
+                },
+                "page-sidebar-backgroundColor": {
+                    "value": "#ffffff",
+                    "edited": false
+                },
+                "group-textColor": {
+                    "value": "#1bbfff",
+                    "edited": false
+                },
+                "group-borderColor": {
+                    "value": "#ffffff",
+                    "edited": false
+                },
+                "group-backgroundColor": {
+                    "value": "#ffffff",
+                    "edited": false
+                },
+                "widget-textColor": {
+                    "value": "#111111",
+                    "edited": false
+                },
+                "widget-backgroundColor": {
+                    "value": "#0094ce",
+                    "edited": false
+                },
+                "widget-borderColor": {
+                    "value": "#ffffff",
+                    "edited": false
+                },
+                "base-font": {
+                    "value": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif"
+                }
+            },
+            "angularTheme": {
+                "primary": "indigo",
+                "accents": "blue",
+                "warn": "red",
+                "background": "grey",
+                "palette": "light"
+            }
+        },
+        "site": {
+            "name": "Node-RED Dashboard",
+            "hideToolbar": "false",
+            "allowSwipe": "false",
+            "lockMenu": "false",
+            "allowTempTheme": "true",
+            "dateFormat": "DD/MM/YYYY",
+            "sizes": {
+                "sx": 48,
+                "sy": 48,
+                "gx": 6,
+                "gy": 6,
+                "cx": 6,
+                "cy": 6,
+                "px": 0,
+                "py": 0
+            }
+        }
+    },
+    {
+        "id": "8b9d575e5fe6e1b1",
+        "type": "websocket-listener",
+        "path": "/ws/elevator",
+        "wholemsg": "false"
+    },
+    {
+        "id": "7eb81ae0e692a16b",
+        "type": "ui_group",
+        "name": "Safety Chain & Emergency",
+        "tab": "ui_tab_main",
+        "order": 3,
+        "disp": true,
+        "width": "6",
+        "collapse": false
+    },
+    {
+        "id": "5e10751a4912bda7",
+        "type": "ui_group",
+        "name": "Safety Chain & Emergency",
+        "tab": "ui_tab_main",
+        "order": 3,
+        "disp": true,
+        "width": "6",
+        "collapse": false
+    },
+    {
+        "id": "ad7d428352dec716",
+        "type": "inject",
+        "z": "ca05771492c25f04",
+        "name": "Master Init",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 120,
+        "y": 60,
+        "wires": [
+            [
+                "cd81c9ebe77ab0f7"
+            ]
+        ]
+    },
+    {
+        "id": "cd81c9ebe77ab0f7",
+        "type": "function",
+        "z": "ca05771492c25f04",
+        "name": "Init Database & Cars",
+        "func": "// 1. RFID Card Database (ข้อย่อย 1ข & 3ก)\nglobal.set(\"rfid_db\", {\n    \"CARD_ADMIN\": { name: \"Administrator\", allowed_floors: Array.from({length: 20}, (_, i) => i + 1) },\n    \"CARD_USER1\": { name: \"Engineering Staff\", allowed_floors: [1, 2, 3, 4, 16] },\n    \"CARD_GUEST\": { name: \"Visitor\", allowed_floors: [1, 2] }\n});\n\n// 2. Initial Elevator States as specified in Exam Problem 3(b)\n// 2s per floor, 10s stop\nglobal.set(\"cars\", {\n    \"A\": { current: 2, target: 2, dir: \"UP\", stops: [9, 16], load: 50, door: \"CLOSED\", state: \"IDLE\", timer: 0, last_hb: Date.now() },\n    \"B\": { current: 12, target: 12, dir: \"DOWN\", stops: [6, 1], load: 30, door: \"CLOSED\", state: \"IDLE\", timer: 0, last_hb: Date.now() },\n    \"C\": { current: 3, target: 3, dir: \"UP\", stops: [5], load: 90, door: \"CLOSED\", state: \"IDLE\", timer: 0, last_hb: Date.now() },\n    \"D\": { current: 1, target: 1, dir: \"IDLE\", stops: [], load: 0, door: \"CLOSED\", state: \"IDLE\", timer: 0, last_hb: Date.now() - 6000 }\n});\n\n// 3. Hall Unit State Machine: IDLE, AUTH_PENDING, WAITING_TARGET, DISPATCHED\nflow.set(\"hall_state\", {\n    status: \"IDLE\",\n    card_id: null,\n    allowed_floors: [],\n    from_floor: 4,\n    timer: 0\n});\n\nglobal.set(\"system_mode\", \"NORMAL\");\nreturn { payload: \"SYSTEM INITIALIZED\" };",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 320,
+        "y": 60,
+        "wires": [
+            [
+                "9e3b291ca46b94ed"
+            ]
+        ]
+    },
+    {
+        "id": "8fbb33350558ac08",
+        "type": "ui_dropdown",
+        "z": "ca05771492c25f04",
+        "name": "Hall From Floor",
+        "label": "Hall Floor Position",
+        "tooltip": "",
+        "place": "Select Floor",
+        "group": "ui_group_hall",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "passthru": true,
+        "multiple": false,
+        "options": [
+            {
+                "label": "Floor 1",
+                "value": 1,
+                "type": "num"
+            },
+            {
+                "label": "Floor 2",
+                "value": 2,
+                "type": "num"
+            },
+            {
+                "label": "Floor 3",
+                "value": 3,
+                "type": "num"
+            },
+            {
+                "label": "Floor 4",
+                "value": 4,
+                "type": "num"
+            },
+            {
+                "label": "Floor 5",
+                "value": 5,
+                "type": "num"
+            },
+            {
+                "label": "Floor 6",
+                "value": 6,
+                "type": "num"
+            },
+            {
+                "label": "Floor 7",
+                "value": 7,
+                "type": "num"
+            },
+            {
+                "label": "Floor 8",
+                "value": 8,
+                "type": "num"
+            },
+            {
+                "label": "Floor 9",
+                "value": 9,
+                "type": "num"
+            },
+            {
+                "label": "Floor 10",
+                "value": 10,
+                "type": "num"
+            },
+            {
+                "label": "Floor 11",
+                "value": 11,
+                "type": "num"
+            },
+            {
+                "label": "Floor 12",
+                "value": 12,
+                "type": "num"
+            },
+            {
+                "label": "Floor 13",
+                "value": 13,
+                "type": "num"
+            },
+            {
+                "label": "Floor 14",
+                "value": 14,
+                "type": "num"
+            },
+            {
+                "label": "Floor 15",
+                "value": 15,
+                "type": "num"
+            },
+            {
+                "label": "Floor 16",
+                "value": 16,
+                "type": "num"
+            },
+            {
+                "label": "Floor 17",
+                "value": 17,
+                "type": "num"
+            },
+            {
+                "label": "Floor 18",
+                "value": 18,
+                "type": "num"
+            },
+            {
+                "label": "Floor 19",
+                "value": 19,
+                "type": "num"
+            },
+            {
+                "label": "Floor 20",
+                "value": 20,
+                "type": "num"
+            }
+        ],
+        "payload": "",
+        "topic": "set_from_floor",
+        "topicType": "str",
+        "x": 130,
+        "y": 140,
+        "wires": [
+            [
+                "1267913c90fdaba4"
+            ]
+        ]
+    },
+    {
+        "id": "6bf88ff642971408",
+        "type": "ui_dropdown",
+        "z": "ca05771492c25f04",
+        "name": "Badge Selection",
+        "label": "RFID Badge",
+        "tooltip": "",
+        "place": "Badge",
+        "group": "ui_group_hall",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "passthru": true,
+        "multiple": false,
+        "options": [
+            {
+                "label": "CARD_USER1 (Floor 1-4, 16)",
+                "value": "CARD_USER1",
+                "type": "str"
+            },
+            {
+                "label": "CARD_ADMIN (Floor 1-20)",
+                "value": "CARD_ADMIN",
+                "type": "str"
+            },
+            {
+                "label": "CARD_GUEST (Floor 1-2)",
+                "value": "CARD_GUEST",
+                "type": "str"
+            }
+        ],
+        "payload": "",
+        "topic": "set_badge",
+        "topicType": "str",
+        "x": 130,
+        "y": 180,
+        "wires": [
+            [
+                "1267913c90fdaba4"
+            ]
+        ]
+    },
+    {
+        "id": "500a76c7fe2a1f5d",
+        "type": "ui_button",
+        "z": "ca05771492c25f04",
+        "name": "Tap Card Button",
+        "group": "ui_group_hall",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "label": "[1] TAP RFID BADGE",
+        "tooltip": "",
+        "color": "#ffffff",
+        "bgcolor": "#1e40af",
+        "icon": "",
+        "topic": "tap_card",
+        "topicType": "str",
+        "x": 130,
+        "y": 220,
+        "wires": [
+            [
+                "1267913c90fdaba4"
+            ]
+        ]
+    },
+    {
+        "id": "96b061ea33e7c818",
+        "type": "ui_dropdown",
+        "z": "ca05771492c25f04",
+        "name": "Target Floor Selection",
+        "label": "Target Floor Keypad",
+        "tooltip": "",
+        "place": "Select Floor",
+        "group": "ui_group_hall",
+        "order": 4,
+        "width": 0,
+        "height": 0,
+        "passthru": true,
+        "multiple": false,
+        "options": [
+            {
+                "label": "Floor 1",
+                "value": 1,
+                "type": "num"
+            },
+            {
+                "label": "Floor 2",
+                "value": 2,
+                "type": "num"
+            },
+            {
+                "label": "Floor 3",
+                "value": 3,
+                "type": "num"
+            },
+            {
+                "label": "Floor 4",
+                "value": 4,
+                "type": "num"
+            },
+            {
+                "label": "Floor 5",
+                "value": 5,
+                "type": "num"
+            },
+            {
+                "label": "Floor 6",
+                "value": 6,
+                "type": "num"
+            },
+            {
+                "label": "Floor 7",
+                "value": 7,
+                "type": "num"
+            },
+            {
+                "label": "Floor 8",
+                "value": 8,
+                "type": "num"
+            },
+            {
+                "label": "Floor 9",
+                "value": 9,
+                "type": "num"
+            },
+            {
+                "label": "Floor 10",
+                "value": 10,
+                "type": "num"
+            },
+            {
+                "label": "Floor 11",
+                "value": 11,
+                "type": "num"
+            },
+            {
+                "label": "Floor 12",
+                "value": 12,
+                "type": "num"
+            },
+            {
+                "label": "Floor 13",
+                "value": 13,
+                "type": "num"
+            },
+            {
+                "label": "Floor 14",
+                "value": 14,
+                "type": "num"
+            },
+            {
+                "label": "Floor 15",
+                "value": 15,
+                "type": "num"
+            },
+            {
+                "label": "Floor 16",
+                "value": 16,
+                "type": "num"
+            },
+            {
+                "label": "Floor 17",
+                "value": 17,
+                "type": "num"
+            },
+            {
+                "label": "Floor 18",
+                "value": 18,
+                "type": "num"
+            },
+            {
+                "label": "Floor 19",
+                "value": 19,
+                "type": "num"
+            },
+            {
+                "label": "Floor 20",
+                "value": 20,
+                "type": "num"
+            }
+        ],
+        "payload": "",
+        "topic": "set_target_floor",
+        "topicType": "str",
+        "x": 140,
+        "y": 260,
+        "wires": [
+            [
+                "1267913c90fdaba4"
+            ]
+        ]
+    },
+    {
+        "id": "8a415c6020294ca6",
+        "type": "ui_button",
+        "z": "ca05771492c25f04",
+        "name": "Submit Floor Button",
+        "group": "ui_group_hall",
+        "order": 5,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "label": "[2] SELECT TARGET FLOOR",
+        "tooltip": "",
+        "color": "#ffffff",
+        "bgcolor": "#047857",
+        "icon": "",
+        "topic": "submit_target",
+        "topicType": "str",
+        "x": 140,
+        "y": 300,
+        "wires": [
+            [
+                "1267913c90fdaba4"
+            ]
+        ]
+    },
+    {
+        "id": "1267913c90fdaba4",
+        "type": "function",
+        "z": "ca05771492c25f04",
+        "name": "Hall State Machine & 10s Timer",
+        "func": "let hall = flow.get(\"hall_state\") || { status: \"IDLE\", card_id: \"CARD_USER1\", allowed_floors: [], from_floor: 4, target_floor: 16, timer: 0 };\nconst rfid_db = global.get(\"rfid_db\") || {};\nconst mode = global.get(\"system_mode\") || \"NORMAL\";\n\n// Check fire emergency\nif (mode === \"FIRE_ALARM\") {\n    hall.status = \"IDLE\";\n    flow.set(\"hall_state\", hall);\n    return [\n        { payload: \"<div style='color:red; font-weight:bold;'>[EMERGENCY] FIRE ALARM: OUT OF SERVICE</div>\" },\n        null\n    ];\n}\n\nif (msg.topic === \"set_from_floor\") {\n    hall.from_floor = Number(msg.payload);\n}\nif (msg.topic === \"set_badge\") {\n    hall.card_id = String(msg.payload);\n}\nif (msg.topic === \"set_target_floor\") {\n    hall.target_floor = Number(msg.payload);\n}\n\n// 1. EVENT: TAP RFID BADGE (Protocol Message 1: AUTH_REQ)\nif (msg.topic === \"tap_card\") {\n    const user = rfid_db[hall.card_id];\n    if (!user) {\n        hall.status = \"IDLE\";\n        flow.set(\"hall_state\", hall);\n        return [\n            { payload: \"<div style='color:red;'>[AUTH REJECTED] CARD NOT FOUND</div>\" },\n            null\n        ];\n    }\n    \n    // Check if card has access to current floor\n    if (!user.allowed_floors.includes(hall.from_floor)) {\n        hall.status = \"IDLE\";\n        flow.set(\"hall_state\", hall);\n        return [\n            { payload: `<div style='color:red;'>[ACCESS DENIED] NO PERMISSION ON FLOOR ${hall.from_floor}</div>` },\n            null\n        ];\n    }\n\n    // AUTH OK: Start 10-second window (ข้อย่อย 2ค & 3ค)\n    hall.status = \"WAITING_TARGET\";\n    hall.allowed_floors = user.allowed_floors;\n    hall.timer = 10;\n    flow.set(\"hall_state\", hall);\n\n    const authOkMsg = `\n    <div style=\"border:1px solid #16a34a; background:#f0fdf4; padding:8px; border-radius:4px;\">\n      <div style=\"color:#15803d; font-weight:bold;\">[AUTH ACCEPTED] USER: ${user.name}</div>\n      <div style=\"color:#374151; font-size:12px;\">PLEASE SELECT TARGET FLOOR WITHIN: <b>${hall.timer}s</b></div>\n    </div>`;\n    return [{ payload: authOkMsg }, null];\n}\n\n// 2. EVENT: SUBMIT TARGET FLOOR (Protocol Message 3: CALL_REQ)\nif (msg.topic === \"submit_target\") {\n    if (hall.status !== \"WAITING_TARGET\") {\n        return [\n            { payload: \"<div style='color:orange;'>[WARNING] PLEASE TAP RFID BADGE FIRST</div>\" },\n            null\n        ];\n    }\n\n    // Verify destination permission\n    if (!hall.allowed_floors.includes(hall.target_floor)) {\n        return [\n            { payload: `<div style='color:red;'>[TARGET DENIED] CARD NOT PERMITTED FOR FLOOR ${hall.target_floor}</div>` },\n            null\n        ];\n    }\n\n    // Forward request to Dispatch Engine\n    hall.status = \"DISPATCHED\";\n    hall.timer = 0;\n    flow.set(\"hall_state\", hall);\n\n    const callPayload = {\n        from_floor: hall.from_floor,\n        target_floor: hall.target_floor,\n        card_id: hall.card_id\n    };\n\n    return [\n        { payload: `<div style='color:blue;'>[REQUEST SENT] DISPATCHING FOR FLOOR ${hall.target_floor}...</div>` },\n        { topic: \"elevator/hall/call_req\", payload: callPayload }\n    ];\n}\n\n// 3. EVENT: 1-SECOND TICK FOR 10s TIMEOUT\nif (msg.topic === \"timer_tick\") {\n    if (hall.status === \"WAITING_TARGET\" && hall.timer > 0) {\n        hall.timer -= 1;\n        flow.set(\"hall_state\", hall);\n        if (hall.timer === 0) {\n            hall.status = \"IDLE\";\n            flow.set(\"hall_state\", hall);\n            return [\n                { payload: \"<div style='color:red;'>[TIMEOUT] 10 SECONDS EXPIRED. TRANSACTION RESET.</div>\" },\n                null\n            ];\n        } else {\n            return [\n                { payload: `\n                <div style=\"border:1px solid #16a34a; background:#f0fdf4; padding:8px; border-radius:4px;\">\n                  <div style=\"color:#15803d; font-weight:bold;\">[AUTH ACCEPTED] SELECT FLOOR</div>\n                  <div style=\"color:#374151; font-size:12px;\">TIME REMAINING: <b>${hall.timer}s</b></div>\n                </div>` },\n                null\n            ];\n        }\n    }\n}\n\nflow.set(\"hall_state\", hall);\nreturn null;",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 450,
+        "y": 240,
+        "wires": [
+            [
+                "5dc04000d5027143"
+            ],
+            [
+                "c1d3d72bf940b726"
+            ]
+        ]
+    },
+    {
+        "id": "5dc04000d5027143",
+        "type": "ui_template",
+        "z": "ca05771492c25f04",
+        "group": "ui_group_hall",
+        "name": "Hall Unit Display",
+        "order": 6,
+        "width": 0,
+        "height": 0,
+        "format": "<div ng-bind-html=\"msg.payload\"></div>",
+        "storeOutMessages": true,
+        "fwdInMessages": true,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "x": 730,
+        "y": 220,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "f913b5c0bda5899e",
+        "type": "websocket in",
+        "z": "ca05771492c25f04",
+        "name": "WS Call Request",
+        "server": "8b9d575e5fe6e1b1",
+        "client": "",
+        "x": 150,
+        "y": 380,
+        "wires": [
+            [
+                "c1d3d72bf940b726"
+            ]
+        ]
+    },
+    {
+        "id": "5013c26d40cad3cf",
+        "type": "websocket out",
+        "z": "ca05771492c25f04",
+        "name": "WS Assign Response",
+        "server": "8b9d575e5fe6e1b1",
+        "client": "",
+        "x": 750,
+        "y": 380,
+        "wires": []
+    },
+    {
+        "id": "c1d3d72bf940b726",
+        "type": "function",
+        "z": "ca05771492c25f04",
+        "name": "Central Dispatch Engine",
+        "func": "// Parse Input (WS JSON or MQTT Payload)\nlet raw = msg.payload;\nif (typeof raw === \"string\") {\n    try { raw = JSON.parse(raw); } catch(e) {}\n}\nconst topic = msg.topic || \"\";\n// 1. Handle Fire Alarm via WS or MQTT (elevator/safety/fire_alarm)\nif (topic === \"elevator/safety/fire_alarm\" || (raw && (raw.topic === \"fire_alarm\" || raw.action === \"fire_alarm\" || raw.action === \"cancel_fire\"))) {\n    const isCancel = (raw === false || raw === \"false\" || (raw && (raw.fire === false || raw.payload === false || raw.action === \"cancel_fire\")));\n    if (isCancel) {\n        global.set(\"system_mode\", \"NORMAL\");\n        let cars = global.get(\"cars\") || {};\n        cars[\"A\"] = { current: 2, target: 2, dir: \"UP\", stops: [9, 16], load: 50, door: \"CLOSED\", state: \"IDLE\", timer: 0, last_hb: Date.now() };\n        cars[\"B\"] = { current: 12, target: 12, dir: \"DOWN\", stops: [6, 1], load: 30, door: \"CLOSED\", state: \"IDLE\", timer: 0, last_hb: Date.now() };\n        cars[\"C\"] = { current: 3, target: 3, dir: \"UP\", stops: [5], load: 90, door: \"CLOSED\", state: \"IDLE\", timer: 0, last_hb: Date.now() };\n        cars[\"D\"] = { current: 1, target: 1, dir: \"IDLE\", stops: [], load: 0, door: \"CLOSED\", state: \"IDLE\", timer: 0, last_hb: Date.now() - 6000 };\n        global.set(\"cars\", cars);\n        const cancelRes = { status: \"RESET_OK\", message: \"FIRE ALARM CANCELLED\" };\n        return [\n            { payload: JSON.stringify(cancelRes), topic: \"elevator/hall/assign\" },\n            { payload: \"<div style='color:green; font-weight:bold;'>[ระบบปกติ] ยกเลิกสัญญาณเพลิงไหม้แล้ว</div>\" },\n            null\n        ];\n    } else {\n        global.set(\"system_mode\", \"FIRE_ALARM\");\n        let cars = global.get(\"cars\") || {};\n        for (let id in cars) {\n            cars[id].stops = [1];\n            cars[id].dir = cars[id].current > 1 ? \"DOWN\" : \"IDLE\";\n            cars[id].door = \"CLOSED\";\n        }\n        global.set(\"cars\", cars);\n        const fireRes = { status: \"EMERGENCY\", message: \"FIRE ALARM ACTIVE\" };\n        return [\n            { payload: JSON.stringify(fireRes), topic: \"elevator/hall/assign\" },\n            { payload: \"<div style='color:red; font-weight:bold; font-size:16px;'>[ฉุกเฉิน] ระบบแจ้งเตือนเหตุเพลิงไหม้ ลิฟต์งดให้บริการ</div>\" },\n            null\n        ];\n    }\n}\n// 2. Handle System Reset via WS or MQTT (elevator/system/reset)\nif (topic === \"elevator/system/reset\" || (raw && (raw.topic === \"reset_system\" || raw.action === \"reset_system\"))) {\n    global.set(\"system_mode\", \"NORMAL\");\n    let cars = global.get(\"cars\") || {};\n    cars[\"A\"] = { current: 2, target: 2, dir: \"UP\", stops: [9, 16], load: 50, door: \"CLOSED\", state: \"IDLE\", timer: 0, last_hb: Date.now() };\n    cars[\"B\"] = { current: 12, target: 12, dir: \"DOWN\", stops: [6, 1], load: 30, door: \"CLOSED\", state: \"IDLE\", timer: 0, last_hb: Date.now() };\n    cars[\"C\"] = { current: 3, target: 3, dir: \"UP\", stops: [5], load: 90, door: \"CLOSED\", state: \"IDLE\", timer: 0, last_hb: Date.now() };\n    cars[\"D\"] = { current: 1, target: 1, dir: \"IDLE\", stops: [], load: 0, door: \"CLOSED\", state: \"IDLE\", timer: 0, last_hb: Date.now() - 6000 };\n    global.set(\"cars\", cars);\n    const resetRes = { status: \"RESET_OK\", message: \"SYSTEM NORMALIZED\" };\n    return [\n        { payload: JSON.stringify(resetRes), topic: \"elevator/hall/assign\" },\n        { payload: \"<div style='color:green; font-weight:bold;'>[ระบบปกติ] รีเซ็ตสถานะลิฟต์เรียบร้อย</div>\" },\n        null\n    ];\n}\n// 3. Extract Floor Call Request (from WS payload or MQTT elevator/hall/{floor}/call_req)\nlet fromFloor = (raw && raw.from_floor) ? Number(raw.from_floor) : null;\nif (!fromFloor && topic.includes(\"/hall/\")) {\n    const parts = topic.split(\"/\"); const fromPart = parts[2]; if (fromPart && !isNaN(fromPart)) fromFloor = Number(fromPart);\n}\nif (!fromFloor) fromFloor = 4;\nconst req = {\n    from_floor: fromFloor,\n    target_floor: (raw && raw.target_floor) ? Number(raw.target_floor) : 16,\n    card_id: String((raw && raw.card_id) ? raw.card_id : \"CARD_USER1\")\n};\nlet cars = global.get(\"cars\") || {};\nconst mode = global.get(\"system_mode\") || \"NORMAL\";\nif (mode === \"FIRE_ALARM\") {\n    const fireRes = { status: \"EMERGENCY\", message: \"FIRE ALARM ACTIVE\" };\n    return [\n        { payload: JSON.stringify(fireRes), topic: \"elevator/hall/\" + req.from_floor + \"/assign\" },\n        { payload: \"<div style='color:red; font-weight:bold; font-size:16px;'>[ฉุกเฉิน] ระบบแจ้งเตือนเหตุเพลิงไหม้ ลิฟต์งดให้บริการ</div>\" },\n        null\n    ];\n}\n// Validation 1: Origin and Target floor cannot be identical\nif (req.from_floor === req.target_floor) {\n    const errRes = { status: \"DENIED\", message: \"INVALID: ORIGIN AND TARGET FLOOR CANNOT BE IDENTICAL\" };\n    return [\n        { payload: JSON.stringify(errRes), topic: \"elevator/hall/\" + req.from_floor + \"/assign\" },\n        { payload: \"<div style='color:red;'>[DENIED] Origin and target floors must be different</div>\" },\n        null\n    ];\n}\n// Validation 2: Floor range must be 1 - 20\nif (req.from_floor < 1 || req.from_floor > 20 || req.target_floor < 1 || req.target_floor > 20) {\n    const errRes = { status: \"DENIED\", message: \"INVALID: FLOOR NUMBER OUT OF BOUNDS (1-20)\" };\n    return [\n        { payload: JSON.stringify(errRes), topic: \"elevator/hall/\" + req.from_floor + \"/assign\" },\n        { payload: \"<div style='color:red;'>[DENIED] Floor out of bounds (1-20)</div>\" },\n        null\n    ];\n}\n// Validation 3: Check RFID DB permissions\nconst rfid_db = global.get(\"rfid_db\") || {};\nconst user = rfid_db[req.card_id];\nif (!user || !user.allowed_floors.includes(req.from_floor) || !user.allowed_floors.includes(req.target_floor)) {\n    const denyRes = { status: \"DENIED\", message: \"PERMISSION DENIED: CARD NOT AUTHORIZED FOR SPECIFIED FLOORS\" };\n    return [\n        { payload: JSON.stringify(denyRes), topic: \"elevator/hall/\" + req.from_floor + \"/assign\" },\n        { payload: \"<div style='color:red;'>[DENIED] Card unauthorized for specified floors</div>\" },\n        null\n    ];\n}\nconst MOVE_TIME = 2; // 2 วินาทีต่อชั้น\nconst STOP_TIME = 10; // 10 วินาทีต่อการจอดรับ-ส่ง\nlet selectedCar = null;\nlet minCost = Infinity;\nconst reqDir = req.target_floor > req.from_floor ? \"UP\" : \"DOWN\";\nfor (let id of [\"A\", \"B\", \"C\", \"D\"]) {\n    let car = cars[id];\n    let hbSec = (Date.now() - car.last_hb) / 1000;\n    // กฎที่ 1: ตัดสิทธิ์หากขาด Heartbeat เกิน 3 วินาที (ตัดลิฟต์ D)\n    if (hbSec > 3) continue;\n    // กฎที่ 2: ตัดสิทธิ์หากน้ำหนักบรรทุกเกิน 80% (ตัดลิฟต์ C)\n    if (car.load > 80) continue;\n    // คำนวณเวลาประเมิน (Cost) ตามทิศทางและระยะทาง\n    let cost = Infinity;\n    if (reqDir === \"UP\" && car.dir === \"UP\" && car.current <= req.from_floor) {\n        let floors = req.from_floor - car.current;\n        let stopsBefore = car.stops.filter(s => s < req.from_floor).length;\n        cost = (floors * MOVE_TIME) + (stopsBefore * STOP_TIME);\n    } else if (reqDir === \"DOWN\" && car.dir === \"DOWN\" && car.current >= req.from_floor) {\n        let floors = car.current - req.from_floor;\n        let stopsBefore = car.stops.filter(s => s > req.from_floor).length;\n        cost = (floors * MOVE_TIME) + (stopsBefore * STOP_TIME);\n    } else if (car.dir === \"IDLE\" || car.dir === \"-\") {\n        cost = Math.abs(car.current - req.from_floor) * MOVE_TIME;\n    } else {\n        cost = 100; // วิ่งคนละทิศทาง กำหนดโทษเวลา\n    }\n    if (cost < minCost) {\n        minCost = cost;\n        selectedCar = id;\n    }\n}\nif (!selectedCar) {\n    const unavail = { status: \"UNAVAILABLE\", message: \"NO ELEVATOR AVAILABLE\" };\n    return [\n        { payload: JSON.stringify(unavail), topic: \"elevator/hall/\" + req.from_floor + \"/assign\" },\n        { payload: \"<div style='color:red; font-weight:bold;'>[ขออภัย] ไม่มีลิฟต์พร้อมให้บริการในขณะนี้</div>\" },\n        null\n    ];\n}\n// อัปเดตคิวรับส่งตามทิศทางการเคลื่อนที่\nif (!cars[selectedCar].stops.includes(req.from_floor)) cars[selectedCar].stops.push(req.from_floor);\nif (!cars[selectedCar].stops.includes(req.target_floor)) cars[selectedCar].stops.push(req.target_floor);\nif (cars[selectedCar].dir === \"DOWN\") {\n    cars[selectedCar].stops.sort((a, b) => b - a);\n} else {\n    cars[selectedCar].stops.sort((a, b) => a - b);\n}\nglobal.set(\"cars\", cars);\nconst response = {\n    status: \"SUCCESS\",\n    assigned_car: selectedCar,\n    from_floor: req.from_floor,\n    target_floor: req.target_floor,\n    cost: minCost,\n    message: \"PLEASE PROCEED TO ELEVATOR \" + selectedCar\n};\n// แสดงผลลัพธ์ขั้นตอนที่ 3\nconst htmlDisplay = `\n<div style=\"border:2px solid #16a34a; background:#f0fdf4; padding:12px; border-radius:6px; font-family:sans-serif;\">\n  <div style=\"color:#15803d; font-size:18px; font-weight:bold;\">\n    ขั้นตอนที่ 3: กรุณาไปขึ้นลิฟต์ช่อง [ CAR - ${selectedCar} ]\n  </div>\n  <div style=\"color:#1f2937; font-size:13px; margin-top:8px; line-height:1.6;\">\n    - <b>ชั้นต้นทาง:</b> ชั้น ${req.from_floor} | <b>ชั้นปลายทาง:</b> ชั้น ${req.target_floor}<br>\n    - <b>เวลารอลิฟต์ประมาณ:</b> <span style=\"color:#2563eb; font-weight:bold; font-size:14px;\">${minCost} วินาที</span>\n  </div>\n</div>`;\nreturn [\n    { payload: JSON.stringify(response), topic: \"elevator/hall/\" + req.from_floor + \"/assign\" }, // Out 1: WebSocket & MQTT Hall Assign\n    { payload: htmlDisplay },                                                                   // Out 2: Hall Unit Display\n    { topic: \"elevator/car/\" + selectedCar + \"/command\", payload: JSON.stringify({ car: selectedCar, add_stops: [req.from_floor, req.target_floor] }) } // Out 3: Physics Loop & MQTT Car Command\n];",
+        "outputs": 3,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 460,
+        "y": 380,
+        "wires": [
+            [
+                "5013c26d40cad3cf",
+                "mqtt_out_assign"
+            ],
+            [
+                "5dc04000d5027143"
+            ],
+            [
+                "9e3b291ca46b94ed",
+                "mqtt_out_car_cmd"
+            ]
+        ]
+    },
+    {
+        "id": "20a61305b360eefc",
+        "type": "inject",
+        "z": "ca05771492c25f04",
+        "name": "System Clock 1s",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "1",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "timer_tick",
+        "payload": "",
+        "payloadType": "date",
+        "x": 130,
+        "y": 480,
+        "wires": [
+            [
+                "bc9285fb54c6b954",
+                "1267913c90fdaba4"
+            ]
+        ]
+    },
+    {
+        "id": "bc9285fb54c6b954",
+        "type": "function",
+        "z": "ca05771492c25f04",
+        "name": "Physics Engine & Watchdog",
+        "func": "let cars = global.get(\"cars\") || {};\nconst now = Date.now();\nconst mode = global.get(\"system_mode\") || \"NORMAL\";\n\n// Keep active heartbeats for A, B, C (Keep D offline as in Exam Problem 3b)\nif (cars[\"A\"]) cars[\"A\"].last_hb = now;\nif (cars[\"B\"]) cars[\"B\"].last_hb = now;\nif (cars[\"C\"]) cars[\"C\"].last_hb = now;\n\n// Physics loop for each car\nfor (let id of [\"A\", \"B\", \"C\"]) {\n    let car = cars[id];\n    if (!car) continue;\n    \n    // Safety Chain: If fire mode, target is floor 1\n    if (mode === \"FIRE_ALARM\") {\n        car.stops = [];\n        if (car.current > 1) {\n            car.timer = (car.timer || 0) + 1;\n            if (car.timer >= 2) { // 2 seconds per floor\n                car.current -= 1;\n                car.current = Math.max(1, car.current);\n                car.timer = 0;\n            }\n            car.dir = \"DOWN\";\n            car.door = \"CLOSED\";\n        } else {\n            car.current = 1;\n            car.dir = \"IDLE\";\n            car.door = \"OPEN\";\n            car.timer = 0;\n        }\n        continue;\n    }\n\n    // Normal destination dispatch service\n    if (car.stops && car.stops.length > 0) {\n        let nextStop = car.stops[0];\n        \n        if (car.current === nextStop) {\n            // Arrived at destination: Door open for 10 seconds\n            car.state = \"STOPPED\";\n            car.door = \"OPEN\";\n            car.timer = (car.timer || 0) + 1;\n            if (car.timer >= 10) { // 10s passenger transfer\n                car.stops.shift();\n                car.timer = 0;\n                car.door = \"CLOSED\";\n                car.state = \"IDLE\";\n            }\n        } else {\n            // Travelling: 2 seconds per floor\n            car.state = \"MOVING\";\n            car.door = \"CLOSED\";\n            car.timer = (car.timer || 0) + 1;\n            if (car.timer >= 2) {\n                if (car.current < nextStop) {\n                    car.current += 1;\n                    car.dir = \"UP\";\n                } else if (car.current > nextStop) {\n                    car.current -= 1;\n                    car.dir = \"DOWN\";\n                }\n                car.current = Math.max(1, Math.min(20, car.current));\n                car.timer = 0;\n            }\n        }\n    } else {\n        car.dir = \"IDLE\";\n        car.state = \"IDLE\";\n        car.door = \"CLOSED\";\n        car.timer = 0;\n    }\n}\n\nglobal.set(\"cars\", cars);\n\n// Prepare telemetry message for MQTT and Status Table\nmsg.payload = JSON.stringify(cars);\nmsg.topic = \"elevator/telemetry/cars\";\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 390,
+        "y": 480,
+        "wires": [
+            [
+                "9e3b291ca46b94ed",
+                "mqtt_out_telemetry"
+            ]
+        ]
+    },
+    {
+        "id": "9e3b291ca46b94ed",
+        "type": "function",
+        "z": "ca05771492c25f04",
+        "name": "Status Table Renderer",
+        "func": "const cars = global.get(\"cars\") || {};\nconst now = Date.now();\nconst mode = global.get(\"system_mode\") || \"NORMAL\";\n\nlet rows = \"\";\nfor (let id of [\"A\", \"B\", \"C\", \"D\"]) {\n    let car = cars[id];\n    let hbSec = ((now - car.last_hb) / 1000).toFixed(1);\n    let isOffline = hbSec > 3;\n    let isOverload = car.load > 80;\n\n    let statusText = \"NORMAL\";\n    let statusColor = \"#16a34a\"; // green\n\n    if (isOffline) {\n        statusText = `COMM ERROR (${hbSec}s)`;\n        statusColor = \"#dc2626\"; // red\n    } else if (isOverload) {\n        statusText = \"OVERLOAD (>80%)\";\n        statusColor = \"#ea580c\"; // orange\n    } else if (car.state === \"STOPPED\") {\n        statusText = `SERVICING (DOOR ${car.door})`;\n        statusColor = \"#2563eb\"; // blue\n    }\n\n    let stopsStr = (car.stops && car.stops.length > 0) ? car.stops.join(\", \") : \"-\";\n\n    rows += `\n    <tr style=\"border-bottom: 1px solid #e5e7eb;\">\n      <td style=\"padding: 6px; text-align: center; font-weight: bold;\">${id}</td>\n      <td style=\"padding: 6px; text-align: center; font-weight: bold; color: #1e3a8a;\">Floor ${car.current}</td>\n      <td style=\"padding: 6px; text-align: center;\">${car.dir}</td>\n      <td style=\"padding: 6px; text-align: center;\">${car.door}</td>\n      <td style=\"padding: 6px; text-align: center;\">${stopsStr}</td>\n      <td style=\"padding: 6px; text-align: center;\">${car.load}%</td>\n      <td style=\"padding: 6px; text-align: center; color: ${statusColor}; font-weight: bold;\">${statusText}</td>\n    </tr>\n    `;\n}\n\nlet modeText = (mode === \"FIRE_ALARM\")\n    ? \"<div style='color: red; font-weight: bold; margin-bottom: 8px;'>[STATUS: FIRE ALARM - EMERGENCY EVACUATION TO FLOOR 1]</div>\"\n    : \"<div style='color: green; font-weight: bold; margin-bottom: 8px;'>[STATUS: SYSTEM NORMAL]</div>\";\n\nlet tableHtml = `\n<div style=\"font-family: Arial, sans-serif; font-size: 13px;\">\n  ${modeText}\n  <table style=\"width: 100%; border-collapse: collapse;\">\n    <thead>\n      <tr style=\"background: #f3f4f6; border-bottom: 2px solid #d1d5db;\">\n        <th style=\"padding: 6px;\">Car</th>\n        <th style=\"padding: 6px;\">Floor</th>\n        <th style=\"padding: 6px;\">Direction</th>\n        <th style=\"padding: 6px;\">Door</th>\n        <th style=\"padding: 6px;\">Queue</th>\n        <th style=\"padding: 6px;\">Load</th>\n        <th style=\"padding: 6px;\">Telemetry</th>\n      </tr>\n    </thead>\n    <tbody>\n      ${rows}\n    </tbody>\n  </table>\n</div>\n`;\n\nreturn { payload: tableHtml };",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 670,
+        "y": 480,
+        "wires": [
+            [
+                "20ea89a487d2776b"
+            ]
+        ]
+    },
+    {
+        "id": "20ea89a487d2776b",
+        "type": "ui_template",
+        "z": "ca05771492c25f04",
+        "group": "ui_group_status",
+        "name": "Status Table Display",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "format": "<div ng-bind-html=\"msg.payload\"></div>",
+        "storeOutMessages": true,
+        "fwdInMessages": true,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "x": 890,
+        "y": 480,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "477e60f6213429ce",
+        "type": "ui_switch",
+        "z": "ca05771492c25f04",
+        "name": "Fire Switch",
+        "label": "Master Fire Alarm Relay",
+        "tooltip": "Safety Chain Relay Contact",
+        "group": "5e10751a4912bda7",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "passthru": true,
+        "topic": "fire_alarm",
+        "topicType": "str",
+        "style": "",
+        "onvalue": "true",
+        "onvalueType": "bool",
+        "onicon": "",
+        "oncolor": "",
+        "offvalue": "false",
+        "offvalueType": "bool",
+        "officon": "",
+        "offcolor": "",
+        "x": 130,
+        "y": 560,
+        "wires": [
+            [
+                "d228adc969309c49"
+            ]
+        ]
+    },
+    {
+        "id": "d228adc969309c49",
+        "type": "function",
+        "z": "ca05771492c25f04",
+        "name": "Fire Alarm Interlock",
+        "func": "const fire = (msg.payload === true || msg.payload === \"true\");\nlet cars = global.get(\"cars\") || {};\n\nif (fire) {\n    global.set(\"system_mode\", \"FIRE_ALARM\");\n    for (let id in cars) {\n        cars[id].stops = [1];\n        cars[id].dir = cars[id].current > 1 ? \"DOWN\" : \"IDLE\";\n        cars[id].door = \"CLOSED\";\n    }\n} else {\n    global.set(\"system_mode\", \"NORMAL\");\n}\n\nglobal.set(\"cars\", cars);\nreturn { payload: \"FIRE STATE UPDATED\" };",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 370,
+        "y": 560,
+        "wires": [
+            [
+                "9e3b291ca46b94ed"
+            ]
+        ]
+    },
+    {
+        "id": "mqtt_broker_local",
+        "type": "mqtt-broker",
+        "name": "Local Mosquitto 1883",
+        "broker": "127.0.0.1",
+        "port": "1883",
+        "clientid": "nodered_elevator_controller",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "elevator/controller/status",
+        "birthQos": "0",
+        "birthRetain": "true",
+        "birthPayload": "ONLINE",
+        "birthMsg": {},
+        "closeTopic": "elevator/controller/status",
+        "closeQos": "0",
+        "closeRetain": "true",
+        "closePayload": "OFFLINE",
+        "closeMsg": {},
+        "willTopic": "elevator/controller/status",
+        "willQos": "0",
+        "willRetain": "true",
+        "willPayload": "OFFLINE",
+        "willMsg": {}
+    },
+    {
+        "id": "mqtt_in_call_req",
+        "type": "mqtt in",
+        "z": "ca05771492c25f04",
+        "name": "MQTT Sub: Hall Call Req",
+        "topic": "elevator/hall/+/call_req",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "mqtt_broker_local",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 180,
+        "y": 280,
+        "wires": [
+            [
+                "c1d3d72bf940b726"
+            ]
+        ]
+    },
+    {
+        "id": "mqtt_in_fire_alarm",
+        "type": "mqtt in",
+        "z": "ca05771492c25f04",
+        "name": "MQTT Sub: Fire Alarm",
+        "topic": "elevator/safety/fire_alarm",
+        "qos": "1",
+        "datatype": "auto-detect",
+        "broker": "mqtt_broker_local",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 180,
+        "y": 340,
+        "wires": [
+            [
+                "c1d3d72bf940b726"
+            ]
+        ]
+    },
+    {
+        "id": "mqtt_in_system_reset",
+        "type": "mqtt in",
+        "z": "ca05771492c25f04",
+        "name": "MQTT Sub: System Reset",
+        "topic": "elevator/system/reset",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "mqtt_broker_local",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 180,
+        "y": 400,
+        "wires": [
+            [
+                "c1d3d72bf940b726"
+            ]
+        ]
+    },
+    {
+        "id": "mqtt_out_assign",
+        "type": "mqtt out",
+        "z": "ca05771492c25f04",
+        "name": "MQTT Pub: Hall Assign",
+        "topic": "",
+        "qos": "0",
+        "retain": "false",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "mqtt_broker_local",
+        "x": 760,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "mqtt_out_car_cmd",
+        "type": "mqtt out",
+        "z": "ca05771492c25f04",
+        "name": "MQTT Pub: Car Command",
+        "topic": "",
+        "qos": "0",
+        "retain": "false",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "mqtt_broker_local",
+        "x": 760,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "mqtt_out_telemetry",
+        "type": "mqtt out",
+        "z": "ca05771492c25f04",
+        "name": "MQTT Pub: Car Telemetry",
+        "topic": "elevator/telemetry/cars",
+        "qos": "0",
+        "retain": "true",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "mqtt_broker_local",
+        "x": 760,
+        "y": 420,
+        "wires": []
+    }
+]

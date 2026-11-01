@@ -1,0 +1,1805 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CN360 Industrial Elevator Supervisory Panel</title>
+    <link href="https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0c0c0c;
+            --panel-bg: #141414;
+            --border-color: #3a3a3a;
+            --amber: #ffb000;
+            --green: #00ff41;
+            --red: #ff3333;
+            --blue: #3b82f6;
+            --text-dim: #666;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--green);
+            font-family: 'Share Tech Mono', monospace;
+            padding: 8px 12px;
+            font-size: 13px;
+            background-image: 
+                linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
+                linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 2px, 3px 100%;
+            min-height: 100vh;
+        }
+
+        .header {
+            text-align: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 4px;
+            margin-bottom: 6px;
+        }
+
+        .header h1 {
+            font-family: 'VT323', monospace;
+            font-size: 22px;
+            color: var(--amber);
+            letter-spacing: 2px;
+            text-shadow: 0 0 5px rgba(255, 176, 0, 0.5);
+            line-height: 1.1;
+        }
+
+        .header .spec {
+            color: var(--text-dim);
+            font-size: 10.5px;
+            margin-top: 1px;
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            padding: 3px 10px;
+            margin-bottom: 8px;
+            font-size: 11px;
+        }
+
+        .status-ok { color: var(--green); }
+        .status-warn { color: var(--amber); }
+        .status-err { color: var(--red); }
+
+        .status-pill {
+            cursor: pointer;
+            padding: 1px 6px;
+            border: 1px solid var(--border-color);
+            border-radius: 3px;
+            background: #000;
+            user-select: none;
+            transition: all 0.2s;
+        }
+        .status-pill:hover {
+            border-color: var(--amber);
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1.05fr 1fr 1.15fr;
+            gap: 10px;
+            align-items: stretch;
+        }
+
+        @media (max-width: 1080px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 8px 10px;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.8);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-title {
+            font-family: 'VT323', monospace;
+            font-size: 16px;
+            color: var(--amber);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 3px;
+            margin-bottom: 6px;
+            letter-spacing: 1px;
+        }
+
+        /* Real-Time Hoistway Shaft Visualizer */
+        .hoistway-container {
+            background: #080808;
+            border: 1px solid #2a2a2a;
+            padding: 4px 6px;
+            margin-bottom: 6px;
+            border-radius: 3px;
+        }
+
+        .hoistway-title {
+            font-size: 10px;
+            color: var(--text-dim);
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 3px;
+            border-bottom: 1px dashed #222;
+            padding-bottom: 2px;
+        }
+
+        .shaft-matrix {
+            display: grid;
+            grid-template-columns: 20px 1fr 1fr 1fr 1fr;
+            gap: 4px;
+            height: 110px;
+            position: relative;
+        }
+
+        .floor-ruler {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            font-size: 9px;
+            color: #555;
+            font-family: 'VT323', monospace;
+            text-align: right;
+            padding-right: 3px;
+            border-right: 1px solid #222;
+            user-select: none;
+        }
+
+        .hall-marker-line {
+            position: absolute;
+            left: 20px;
+            right: 0;
+            height: 1px;
+            border-top: 1px dashed var(--amber);
+            opacity: 0.8;
+            pointer-events: none;
+            z-index: 3;
+            transition: bottom 0.4s ease;
+        }
+
+        .hall-marker-label {
+            position: absolute;
+            right: 2px;
+            top: -8px;
+            font-size: 8px;
+            color: var(--amber);
+            background: #000;
+            padding: 0 2px;
+            border-radius: 2px;
+            font-family: 'VT323', monospace;
+            letter-spacing: 0.5px;
+        }
+
+        .shaft-bay {
+            position: relative;
+            background: rgba(255, 255, 255, 0.015);
+            border: 1px solid #222;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .shaft-bay::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            width: 1px;
+            background: repeating-linear-gradient(to bottom, #2a2a2a, #2a2a2a 2px, transparent 2px, transparent 4px);
+            transform: translateX(-50%);
+            z-index: 1;
+        }
+
+        .shaft-header {
+            position: absolute;
+            top: 1px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 8.5px;
+            color: #555;
+            font-weight: bold;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        .lift-cable {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 1px;
+            background: #444;
+            transform: translateX(-50%);
+            z-index: 2;
+            transition: height 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        .lift-cab {
+            position: absolute;
+            left: 2px;
+            right: 2px;
+            height: 16px;
+            border-radius: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'VT323', monospace;
+            font-size: 12px;
+            z-index: 4;
+            transition: bottom 0.6s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.2s ease;
+            user-select: none;
+        }
+
+        .lift-cab.cab-a {
+            background: #0c1f0c;
+            border: 1px solid var(--green);
+            color: var(--green);
+            box-shadow: 0 0 5px rgba(0, 255, 65, 0.35);
+        }
+
+        .lift-cab.cab-b {
+            background: #0b1924;
+            border: 1px solid #3b82f6;
+            color: #3b82f6;
+            box-shadow: 0 0 5px rgba(59, 130, 246, 0.35);
+        }
+
+        .lift-cab.cab-c {
+            background: #231a06;
+            border: 1px solid var(--amber);
+            color: var(--amber);
+            box-shadow: 0 0 5px rgba(255, 176, 0, 0.35);
+        }
+
+        .lift-cab.cab-d {
+            background: #250909;
+            border: 1px solid var(--red);
+            color: var(--red);
+            box-shadow: 0 0 5px rgba(255, 51, 51, 0.4);
+            animation: faultBlink 1.2s infinite;
+        }
+
+        @keyframes faultBlink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .lift-cab.active-moving {
+            box-shadow: 0 0 10px var(--green);
+            border-color: #fff;
+        }
+
+        .lift-cab.doors-open {
+            animation: doorPulse 0.4s infinite alternate;
+        }
+
+        @keyframes doorPulse {
+            0% { transform: scaleX(1); box-shadow: 0 0 4px var(--green); }
+            100% { transform: scaleX(1.1); box-shadow: 0 0 12px var(--green); background: #1a3a1a; }
+        }
+
+        /* Panel I: Car Status Rows */
+        .car-row {
+            display: grid;
+            grid-template-columns: 46px 28px 24px 38px 38px 1fr;
+            gap: 4px;
+            padding: 3px 0;
+            border-bottom: 1px solid #222;
+            font-size: 11px;
+            align-items: center;
+        }
+
+        .car-header {
+            font-weight: bold;
+            color: var(--amber);
+            border-bottom: 1px solid var(--amber);
+            margin-bottom: 2px;
+            font-size: 10px;
+        }
+
+        .car-id { color: var(--green); font-weight: bold; }
+        .car-floor { font-family: 'VT323', monospace; font-size: 16px; }
+        .car-dir { text-align: center; }
+        .car-door { text-align: center; font-family: monospace; font-size: 10px; }
+        .car-load { text-align: right; }
+        .car-fault { font-size: 9.5px; text-align: right; font-weight: bold; }
+
+        .system-specs-box {
+            background: #000;
+            border: 1px solid #333;
+            padding: 6px 8px;
+            font-size: 10px;
+            color: var(--text-dim);
+            line-height: 1.45;
+            margin-top: 6px;
+        }
+
+        /* Panel II: Hall Terminal */
+        .hall-display {
+            background: #000;
+            border: 1px solid #333;
+            padding: 6px 8px;
+            margin-bottom: 6px;
+        }
+
+        .hall-floor {
+            font-family: 'VT323', monospace;
+            font-size: 32px;
+            line-height: 1;
+            color: var(--red);
+            text-shadow: 0 0 8px var(--red);
+        }
+
+        .origin-btn {
+            background: #2a2a2a;
+            border: 1px solid #555;
+            color: #fff;
+            padding: 1px 7px;
+            cursor: pointer;
+            font-family: monospace;
+            font-size: 12px;
+            border-radius: 2px;
+        }
+        .origin-btn:hover { background: #3a3a3a; border-color: var(--amber); }
+
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 4px;
+            margin-bottom: 6px;
+        }
+
+        .key-btn {
+            background: #2a2a2a;
+            border: 1px solid #444;
+            color: #fff;
+            padding: 5px 3px;
+            font-family: 'VT323', monospace;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 3px;
+            transition: all 0.1s;
+            line-height: 1.1;
+        }
+
+        .key-btn:hover { background: #3a3a3a; }
+        .key-btn:active, .key-btn.active { 
+            background: var(--amber); 
+            color: #000; 
+            box-shadow: 0 0 8px var(--amber);
+        }
+        .key-btn.clr { 
+            background: #4a1a1a; 
+            border-color: #6a3a3a; 
+            color: var(--red); 
+            font-weight: bold;
+        }
+
+        .key-btn.auth-allowed {
+            border-color: rgba(0, 255, 65, 0.7);
+            color: #fff;
+            box-shadow: inset 0 0 4px rgba(0, 255, 65, 0.25);
+        }
+
+        .key-btn.auth-denied {
+            opacity: 0.35;
+            border-color: #222;
+            color: #555;
+            cursor: not-allowed;
+        }
+
+        .rfid-section {
+            background: #0a0a0a;
+            border: 1px dashed #444;
+            padding: 5px 6px;
+            margin-top: 2px;
+        }
+
+        .rfid-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3px;
+        }
+
+        .rfid-card {
+            background: #222;
+            border: 1px solid #444;
+            padding: 3px 5px;
+            font-size: 9.5px;
+            cursor: pointer;
+            border-radius: 3px;
+            text-align: center;
+            line-height: 1.2;
+            transition: all 0.15s;
+        }
+
+        .rfid-card:hover { border-color: var(--green); }
+        .rfid-card.selected { background: #1a3a1a; border-color: var(--green); color: var(--green); }
+
+        .dispatch-btn {
+            width: 100%;
+            padding: 8px;
+            margin-top: 6px;
+            background: linear-gradient(180deg, #2a5a2a, #1a4a1a);
+            border: 2px solid #3a7a3a;
+            color: var(--green);
+            font-family: 'VT323', monospace;
+            font-size: 18px;
+            letter-spacing: 1px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .dispatch-btn:hover { background: linear-gradient(180deg, #3a6a3a, #2a5a2a); }
+        .dispatch-btn:active { transform: translateY(2px); }
+
+        /* Panel III: Cost Evaluator */
+        .cost-formula {
+            background: #000;
+            border: 1px solid #333;
+            padding: 4px 6px;
+            font-family: 'VT323', monospace;
+            font-size: 13px;
+            color: var(--amber);
+            margin-bottom: 4px;
+        }
+
+        .prune-cond {
+            font-size: 9.5px;
+            color: var(--red);
+            margin-bottom: 4px;
+            padding-left: 6px;
+            border-left: 2px solid var(--red);
+            line-height: 1.3;
+        }
+
+        .cost-table {
+            width: 100%;
+            font-size: 10.5px;
+            margin-bottom: 6px;
+        }
+
+        .cost-table td { padding: 3px 0; border-bottom: 1px solid #222; }
+        .cost-val { font-family: 'VT323', monospace; font-size: 12.5px; text-align: right; }
+
+        .telemetry-status-line {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #000;
+            border: 1px solid #333;
+            padding: 3px 8px;
+            font-size: 10px;
+            color: var(--green);
+            margin-bottom: 6px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .fault-btns {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 4px;
+        }
+
+        .fault-btn {
+            flex: 1;
+            padding: 5px 3px;
+            background: #3a1a1a;
+            border: 1px solid #5a3a3a;
+            color: var(--red);
+            font-size: 9.5px;
+            cursor: pointer;
+            border-radius: 3px;
+            font-family: monospace;
+            transition: all 0.2s;
+        }
+        .fault-btn:hover { background: #4a2a2a; }
+
+        @keyframes fireBtnPulse {
+            0% { background: #ff2222; box-shadow: 0 0 6px #ff2222; color: #000; }
+            100% { background: #880000; box-shadow: 0 0 12px #ff0000; color: #fff; }
+        }
+
+        .fault-btn.fire-active {
+            background: #ff2222 !important;
+            color: #000 !important;
+            font-weight: bold !important;
+            border-color: #ff6666 !important;
+            animation: fireBtnPulse 0.7s infinite alternate !important;
+        }
+
+        .log-box {
+            background: #000;
+            border: 1px solid #333;
+            height: 95px;
+            overflow-y: auto;
+            padding: 5px;
+            font-size: 9.5px;
+            color: var(--text-dim);
+            font-family: 'Courier New', monospace;
+            flex-grow: 1;
+        }
+
+        .log-entry { margin-bottom: 2px; }
+        .log-time { color: #555; }
+        .log-msg { color: var(--green); }
+
+        .footer {
+            text-align: center;
+            margin-top: 6px;
+            padding-top: 4px;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-dim);
+            font-size: 9.5px;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>CN360 INDUSTRIAL ELEVATOR SUPERVISORY PANEL</h1>
+        <div class="spec">CN360 MIDTERM 1/2569 - 20 FLOORS - 4-CAR DISPATCHER - WEBSOCKET &amp; MQTT LIVE BRIDGE</div>
+    </div>
+
+    <!-- Clean, Non-Redundant Status Bar (No Emojis) -->
+    <div class="status-bar">
+        <span class="status-pill" id="mode-toggle" onclick="toggleEngineMode()" title="Click to toggle between Node-RED Live Engine and Standalone Simulation">
+            ENGINE: <span id="engine-status" class="status-warn">[LIVE WS &amp; MQTT: CONNECTING...]</span>
+        </span>
+        <span class="status-pill" id="sound-toggle" onclick="toggleMute()" title="Click to mute/unmute audio effects">
+            AUDIO: [ON]
+        </span>
+        <span style="color:var(--text-dim); font-size:10px;">KB SHORTCUT: [0-9, BKSP, ENTER]</span>
+        <span id="clock">00:00:00</span>
+    </div>
+
+    <div class="main-grid">
+        <!-- PANEL I: Hoistway & Cars -->
+        <div class="panel">
+            <div class="panel-title">[PANEL I] HOISTWAY ANNUNCIATOR MATRIX &amp; CAR STATUS</div>
+            
+            <!-- Real-time Hoistway Shaft Visualizer -->
+            <div class="hoistway-container">
+                <div class="hoistway-title">
+                    <span>LIVE HOISTWAY SHAFTS (FL 01 - 20)</span>
+                    <span id="hoistway-active-tag" style="color:var(--green);">[TELEMETRY SYNCED]</span>
+                </div>
+                <div class="shaft-matrix">
+                    <div class="floor-ruler">
+                        <span>20</span>
+                        <span>15</span>
+                        <span>10</span>
+                        <span>05</span>
+                        <span>01</span>
+                    </div>
+
+                    <!-- Hall Level Marker Line -->
+                    <div class="hall-marker-line" id="hall-marker-line">
+                        <span class="hall-marker-label" id="hall-marker-label">HALL FL 04</span>
+                    </div>
+
+                    <!-- Shaft A -->
+                    <div class="shaft-bay" id="shaft-bay-a">
+                        <div class="shaft-header">CAR A</div>
+                        <div class="lift-cable" id="cable-a"></div>
+                        <div class="lift-cab cab-a" id="cab-a">
+                            <span id="cab-txt-a">02^</span>
+                        </div>
+                    </div>
+
+                    <!-- Shaft B -->
+                    <div class="shaft-bay" id="shaft-bay-b">
+                        <div class="shaft-header">CAR B</div>
+                        <div class="lift-cable" id="cable-b"></div>
+                        <div class="lift-cab cab-b" id="cab-b">
+                            <span id="cab-txt-b">12v</span>
+                        </div>
+                    </div>
+
+                    <!-- Shaft C -->
+                    <div class="shaft-bay" id="shaft-bay-c">
+                        <div class="shaft-header">CAR C</div>
+                        <div class="lift-cable" id="cable-c"></div>
+                        <div class="lift-cab cab-c" id="cab-c">
+                            <span id="cab-txt-c">03^</span>
+                        </div>
+                    </div>
+
+                    <!-- Shaft D -->
+                    <div class="shaft-bay" id="shaft-bay-d">
+                        <div class="shaft-header">CAR D</div>
+                        <div class="lift-cable" id="cable-d"></div>
+                        <div class="lift-cab cab-d" id="cab-d">
+                            <span id="cab-txt-d">01-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Car Telemetry Table -->
+            <div class="car-row car-header">
+                <div>CAR ID</div>
+                <div>FLR</div>
+                <div>DIR</div>
+                <div style="text-align: center;">DOOR</div>
+                <div>LOAD</div>
+                <div style="text-align: right;">STATUS / FAULT</div>
+            </div>
+
+            <div class="car-row" id="car-row-a">
+                <div class="car-id">CAR A</div>
+                <div class="car-floor" id="car-fl-a">02</div>
+                <div class="car-dir" id="car-dir-a">^</div>
+                <div class="car-door status-ok" id="car-door-a">[||]</div>
+                <div class="car-load" id="car-load-a">50%</div>
+                <div class="car-fault status-ok" id="car-stat-a">NORMAL</div>
+            </div>
+
+            <div class="car-row" id="car-row-b">
+                <div class="car-id">CAR B</div>
+                <div class="car-floor" id="car-fl-b">12</div>
+                <div class="car-dir" id="car-dir-b">v</div>
+                <div class="car-door status-ok" id="car-door-b">[||]</div>
+                <div class="car-load" id="car-load-b">30%</div>
+                <div class="car-fault status-ok" id="car-stat-b">NORMAL</div>
+            </div>
+
+            <div class="car-row" id="car-row-c">
+                <div class="car-id" style="color: var(--amber);">CAR C</div>
+                <div class="car-floor" id="car-fl-c">03</div>
+                <div class="car-dir" id="car-dir-c">^</div>
+                <div class="car-door status-ok" id="car-door-c">[||]</div>
+                <div class="car-load" style="color: var(--amber);" id="car-load-c">90%</div>
+                <div class="car-fault status-warn" id="car-stat-c">OVERLOAD</div>
+            </div>
+
+            <div class="car-row" id="car-row-d">
+                <div class="car-id" style="color: var(--red);">CAR D</div>
+                <div class="car-floor" id="car-fl-d">01</div>
+                <div class="car-dir" id="car-dir-d">-</div>
+                <div class="car-door status-err" id="car-door-d">[||]</div>
+                <div class="car-load" id="car-load-d">00%</div>
+                <div class="car-fault status-err" id="car-stat-d">HB TIMEOUT</div>
+            </div>
+
+            <!-- Informative System Metrics -->
+            <div class="system-specs-box">
+                <div style="color:var(--amber); font-weight:bold; margin-bottom:2px;">[SUPERVISORY SPECIFICATIONS]</div>
+                <div>* HOISTWAY DYNAMICS: 2.0s / FLOOR | STOP DWELL: 10.0s</div>
+                <div>* SAFETY INTERLOCK: WATCHDOG HEARTBEAT &lt; 3.0s | CAPACITY &lt; 80%</div>
+                <div>* AUTHENTICATION: 13.56 MHz ISO/IEC 14443A MIFARE PROTOCOL</div>
+            </div>
+        </div>
+
+        <!-- PANEL II: Hall Terminal -->
+        <div class="panel">
+            <div class="panel-title">[PANEL II] HALL UNIT TERMINAL</div>
+            
+            <!-- Combined Hall Screen -->
+            <div class="hall-display">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
+                    <span style="font-size: 10px; color: var(--text-dim);">HALL PANEL LOCATION</span>
+                    <div style="display: flex; align-items: center; gap: 4px;">
+                        <button class="origin-btn" id="btn-orig-dec" onclick="adjustOrigin(-1)" title="Decrease Hall Floor">-</button>
+                        <span style="font-size: 9.5px; color: var(--amber);">CHANGE FL</span>
+                        <button class="origin-btn" id="btn-orig-inc" onclick="adjustOrigin(1)" title="Increase Hall Floor">+</button>
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: center; align-items: baseline; gap: 14px; margin: 3px 0;">
+                    <div>
+                        <span class="hall-floor" id="hall-floor-disp">04</span>
+                    </div>
+                    <div style="font-size: 12px; color: var(--amber);">
+                        TARGET: <span id="dest-display" style="font-weight: bold; color: #fff; font-size: 22px; font-family: 'VT323', monospace;">--</span>
+                    </div>
+                </div>
+
+                <div id="vfd-status" style="font-size: 11.5px; color: var(--green); border-top: 1px dashed #222; padding-top: 4px; margin-top: 3px; text-align: center;">
+                    [1] PLEASE TAP RFID BADGE
+                </div>
+            </div>
+
+            <!-- Keypad with Active Auth Illumination -->
+            <div class="keypad">
+                <button class="key-btn" data-val="1" onclick="pressKey(1)">1</button>
+                <button class="key-btn" data-val="2" onclick="pressKey(2)">2</button>
+                <button class="key-btn" data-val="3" onclick="pressKey(3)">3</button>
+                <button class="key-btn" data-val="4" onclick="pressKey(4)">4</button>
+                <button class="key-btn" data-val="5" onclick="pressKey(5)">5</button>
+                <button class="key-btn" data-val="6" onclick="pressKey(6)">6</button>
+                <button class="key-btn" data-val="7" onclick="pressKey(7)">7</button>
+                <button class="key-btn" data-val="8" onclick="pressKey(8)">8</button>
+                <button class="key-btn" data-val="9" onclick="pressKey(9)">9</button>
+                <button class="key-btn" data-val="0" onclick="pressKey(0)">0</button>
+                <button class="key-btn clr" data-val="CLR" style="grid-column: span 2;" onclick="pressKey('CLR')">CLR</button>
+            </div>
+
+            <div class="rfid-section">
+                <div style="font-size: 10px; color: var(--amber); margin-bottom: 3px;">13.56 MHz RFID TRANSPONDER SLOT:</div>
+                <div class="rfid-grid">
+                    <div class="rfid-card" onclick="selectCard('CARD_USER1', this)">CARD_USER1<br><span style="color:#666">[AUTH: 1-4, 16]</span></div>
+                    <div class="rfid-card" onclick="selectCard('CARD_ADMIN', this)">CARD_ADMIN<br><span style="color:#666">[AUTH: 1-20]</span></div>
+                    <div class="rfid-card" onclick="selectCard('CARD_GUEST', this)">CARD_GUEST<br><span style="color:#666">[AUTH: 1, 2 ONLY]</span></div>
+                    <div class="rfid-card" onclick="selectCard('CARD_UNKNOWN', this)">CARD_UNKNOWN<br><span style="color:#666">[UNAUTHORIZED]</span></div>
+                </div>
+            </div>
+
+            <button class="dispatch-btn" onclick="dispatch()">[ ENGAGE DISPATCH REQUEST ]</button>
+        </div>
+
+        <!-- PANEL III: Dispatch Cost Evaluator -->
+        <div class="panel">
+            <div class="panel-title">[PANEL III] CENTRAL DISPATCH COST EVALUATOR &amp; TELEMETRY BUS</div>
+            
+            <div class="cost-formula">
+                COST FORMULA = (DELTA_FLOOR * 2.0s) + (STOPS * 10.0s)
+            </div>
+
+            <div class="prune-cond">
+                PRUNE COND 1: WATCHDOG HEARTBEAT &gt; 3.0s (DROPPED/COMM ERROR)<br>
+                PRUNE COND 2: CAR LOAD CAPACITY &gt; 80% (OVERLOAD LOCKOUT)
+            </div>
+
+            <!-- Pure Cost Evaluation Table -->
+            <table class="cost-table" id="cost-table-body">
+                <tr id="cost-row-a">
+                    <td style="font-weight: bold; width: 55px; color: var(--green);">CAR A</td>
+                    <td class="cost-val" id="cost-a">EVALUATING...</td>
+                </tr>
+                <tr id="cost-row-b">
+                    <td style="font-weight: bold; width: 55px; color: var(--blue);">CAR B</td>
+                    <td class="cost-val" id="cost-b">EVALUATING...</td>
+                </tr>
+                <tr id="cost-row-c">
+                    <td style="font-weight: bold; width: 55px; color: var(--amber);">CAR C</td>
+                    <td class="cost-val" id="cost-c" style="color: var(--red);">OVERLOAD PRUNED (&gt;80%)</td>
+                </tr>
+                <tr id="cost-row-d">
+                    <td style="font-weight: bold; width: 55px; color: var(--red);">CAR D</td>
+                    <td class="cost-val" id="cost-d" style="color: var(--red);">HB TIMEOUT PRUNED (&gt;3.0s)</td>
+                </tr>
+            </table>
+
+            <!-- Concise Live Bus Status -->
+            <div class="telemetry-status-line">
+                <span>MQTT / WS DISPATCH:</span>
+                <span id="telemetry-assign" style="color: var(--text-dim);">READY // STANDBY</span>
+            </div>
+            <div style="font-size:9.5px; color:#666; margin-bottom:5px; font-family:monospace; display:flex; justify-content:space-between; padding:0 2px;">
+                <span>MQTT BROKER: <b style="color:var(--green)">tcp://127.0.0.1:1883</b></span>
+                <span style="color:var(--amber)">TOPICS: elevator/#</span>
+            </div>
+
+            <div class="fault-btns">
+                <button class="fault-btn" id="btn-fire-alarm" onclick="triggerFireAlarm()">EMERGENCY FIRE ALARM</button>
+                <button class="fault-btn" onclick="resetSystem()" style="background: #1a3a1a; border-color: #3a6a3a; color: var(--green);">RESET SYSTEM STATE</button>
+            </div>
+
+            <div class="log-box" id="log-box">
+                <div class="log-entry">
+                    <span class="log-time">[SYSTEM]</span> 
+                    <span class="log-msg">CN360 Industrial Supervisory Console Online. Node-RED + Mosquitto MQTT Bridge active.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        FACULTY OF ENGINEERING - THAMMASAT UNIVERSITY - COMPUTER ENGINEERING
+    </div>
+
+    <script>
+        let currentOrigin = 4;
+        let destFloor = null;
+        let authCard = null;
+        let keyBuffer = '';
+        let timerCountdown = 0;
+        let timerInterval = null;
+        let isDispatching = false;
+        let ambientTimer = null;
+        let engineMode = 'LIVE'; // 'LIVE' or 'DEMO'
+        let soundEnabled = true;
+        let audioCtx = null;
+        let systemMode = 'NORMAL'; // 'NORMAL' or 'FIRE_ALARM'
+        let fireAlarmSoundInterval = null;
+
+        // Active Car Timers Tracking (Movement Intervals & Dwell Timeouts)
+        const carMovementTimers = { a: null, b: null, c: null, d: null };
+        const carDwellTimers = { a: null, b: null, c: null, d: null };
+
+        function stopCarMovement(carKey) {
+            if (carKey) {
+                if (carMovementTimers[carKey]) {
+                    clearInterval(carMovementTimers[carKey]);
+                    carMovementTimers[carKey] = null;
+                }
+                if (carDwellTimers[carKey]) {
+                    clearTimeout(carDwellTimers[carKey]);
+                    carDwellTimers[carKey] = null;
+                }
+            } else {
+                ['a', 'b', 'c', 'd'].forEach(k => {
+                    if (carMovementTimers[k]) {
+                        clearInterval(carMovementTimers[k]);
+                        carMovementTimers[k] = null;
+                    }
+                    if (carDwellTimers[k]) {
+                        clearTimeout(carDwellTimers[k]);
+                        carDwellTimers[k] = null;
+                    }
+                });
+            }
+        }
+
+        // Elevator Real-Time State (Single Source of Truth)
+        const elevatorState = {
+            a: { id: 'A', floor: 2, dir: '^', door: 'CLOSED', load: 50, queue: [9, 16], fault: 'NORMAL', statusClass: 'status-ok' },
+            b: { id: 'B', floor: 12, dir: 'v', door: 'CLOSED', load: 30, queue: [6, 1], fault: 'NORMAL', statusClass: 'status-ok' },
+            c: { id: 'C', floor: 3, dir: '^', door: 'CLOSED', load: 90, queue: [5], fault: 'OVERLOAD', statusClass: 'status-warn' },
+            d: { id: 'D', floor: 1, dir: '-', door: 'CLOSED', load: 0, queue: [], fault: 'HB TIMEOUT', statusClass: 'status-err' }
+        };
+
+        const permissions = {
+            'CARD_USER1': [1,2,3,4,16],
+            'CARD_ADMIN': Array.from({length: 20}, (_, i) => i + 1),
+            'CARD_GUEST': [1,2],
+            'CARD_UNKNOWN': []
+        };
+
+        // Web Audio Synthesizer
+        function getAudioCtx() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume().catch(() => {});
+            }
+            return audioCtx;
+        }
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            try {
+                const ctx = getAudioCtx();
+                if (!ctx) return;
+
+                if (type === 'click') {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(650, ctx.currentTime);
+                    gain.gain.setValueAtTime(0.06, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.035);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.035);
+                } else if (type === 'auth') {
+                    [880, 1320].forEach((freq, idx) => {
+                        const osc = ctx.createOscillator();
+                        const gain = ctx.createGain();
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(freq, ctx.currentTime + idx * 0.07);
+                        gain.gain.setValueAtTime(0.08, ctx.currentTime + idx * 0.07);
+                        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + idx * 0.07 + 0.06);
+                        osc.connect(gain);
+                        gain.connect(ctx.destination);
+                        osc.start(ctx.currentTime + idx * 0.07);
+                        osc.stop(ctx.currentTime + idx * 0.07 + 0.06);
+                    });
+                } else if (type === 'chime') {
+                    [659.25, 523.25].forEach((freq, idx) => {
+                        const osc = ctx.createOscillator();
+                        const gain = ctx.createGain();
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(freq, ctx.currentTime + idx * 0.22);
+                        gain.gain.setValueAtTime(0.12, ctx.currentTime + idx * 0.22);
+                        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + idx * 0.22 + 0.35);
+                        osc.connect(gain);
+                        gain.connect(ctx.destination);
+                        osc.start(ctx.currentTime + idx * 0.22);
+                        osc.stop(ctx.currentTime + idx * 0.22 + 0.35);
+                    });
+                } else if (type === 'alarm') {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(850, ctx.currentTime);
+                    osc.frequency.linearRampToValueAtTime(320, ctx.currentTime + 0.25);
+                    gain.gain.setValueAtTime(0.14, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.25);
+                } else if (type === 'timeout') {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'square';
+                    osc.frequency.setValueAtTime(220, ctx.currentTime);
+                    gain.gain.setValueAtTime(0.09, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.25);
+                }
+            } catch(e) {}
+        }
+
+        function toggleMute() {
+            soundEnabled = !soundEnabled;
+            const btn = document.getElementById('sound-toggle');
+            if (btn) {
+                btn.innerHTML = soundEnabled ? 'AUDIO: [ON]' : 'AUDIO: [OFF]';
+                btn.style.color = soundEnabled ? 'var(--green)' : 'var(--text-dim)';
+            }
+        }
+
+        function toggleEngineMode() {
+            if (systemMode === 'FIRE_ALARM') return;
+            engineMode = engineMode === 'LIVE' ? 'DEMO' : 'LIVE';
+            const textEl = document.getElementById('engine-status');
+            if (textEl) {
+                if (engineMode === 'LIVE') {
+                    textEl.textContent = '[LIVE WS: CONNECTING...]';
+                    textEl.className = 'status-warn';
+                    addLog('SYSTEM', 'Engine switched to LIVE WebSocket (Node-RED mode)');
+                    if (!socket || socket.readyState !== WebSocket.OPEN) initWS();
+                } else {
+                    textEl.textContent = '[DEMO STANDALONE]';
+                    textEl.className = 'status-ok';
+                    addLog('SYSTEM', 'Engine switched to DEMO STANDALONE (Local simulated engine)');
+                }
+            }
+        }
+
+        // Active Permission Highlight on Keypad
+        function highlightAllowedKeys(card) {
+            if (systemMode === 'FIRE_ALARM') return;
+            const allowed = permissions[card] || [];
+            document.querySelectorAll('.key-btn').forEach(btn => {
+                const val = btn.getAttribute('data-val');
+                if (!val || val === 'CLR') return;
+                const isAllowed = allowed.some(fl => String(fl).includes(val));
+                if (isAllowed) {
+                    btn.classList.add('auth-allowed');
+                    btn.classList.remove('auth-denied');
+                } else {
+                    btn.classList.add('auth-denied');
+                    btn.classList.remove('auth-allowed');
+                }
+            });
+        }
+
+        function clearKeyHighlights() {
+            document.querySelectorAll('.key-btn').forEach(btn => {
+                btn.classList.remove('auth-allowed', 'auth-denied');
+            });
+        }
+
+        // Dynamic Real-Time Cost Evaluation
+        function calculateAndRenderCosts(fromFl, targetFl) {
+            if (!fromFl) fromFl = currentOrigin;
+            if (!targetFl && destFloor) targetFl = destFloor;
+
+            // If system is in emergency fire alarm, all cars are locked out
+            if (systemMode === 'FIRE_ALARM') {
+                ['a', 'b', 'c', 'd'].forEach(id => {
+                    const valEl = document.getElementById(`cost-${id}`);
+                    if (valEl) {
+                        valEl.innerHTML = `<span style="color:var(--red); font-weight:bold;">[LOCKED OUT] Fire Recall Active</span>`;
+                    }
+                });
+                return { bestCar: null, minCost: Infinity };
+            }
+
+            const MOVE_TIME = 2.0;
+            const STOP_TIME = 10.0;
+            let minCost = Infinity;
+            let bestCar = null;
+
+            const results = {};
+            const reqDir = (targetFl && targetFl !== fromFl) ? (targetFl > fromFl ? 'UP' : 'DOWN') : null;
+
+            ['a', 'b', 'c', 'd'].forEach(id => {
+                const car = elevatorState[id];
+
+                // Prune 1: Heartbeat Timeout (>3.0s)
+                if (id === 'd' || car.fault.includes('HB TIMEOUT')) {
+                    results[id] = { cost: Infinity, status: 'PRUNED (>3.0s Heartbeat Timeout)', color: 'var(--red)' };
+                    return;
+                }
+                // Prune 2: Overload Capacity (>80%)
+                if (car.load > 80 || car.fault.includes('OVERLOAD')) {
+                    results[id] = { cost: Infinity, status: 'PRUNED (>80% Overload Lockout)', color: 'var(--red)' };
+                    return;
+                }
+
+                // Cost Evaluation
+                let cost = Infinity;
+                let note = '';
+
+                if (reqDir === 'UP') {
+                    if (car.dir === '^' && car.floor <= fromFl) {
+                        const floors = fromFl - car.floor;
+                        const stopsBefore = car.queue.filter(s => s < fromFl).length;
+                        cost = (floors * MOVE_TIME) + (stopsBefore * STOP_TIME);
+                        note = `C = ${cost.toFixed(1)}s (Upward Approach)`;
+                    } else if (car.dir === '-' || car.dir === 'IDLE') {
+                        cost = Math.abs(car.floor - fromFl) * MOVE_TIME;
+                        note = `C = ${cost.toFixed(1)}s (Idle Standby)`;
+                    } else {
+                        cost = 100.0;
+                        note = `Penalty 100s (Opposite Direction)`;
+                    }
+                } else if (reqDir === 'DOWN') {
+                    if (car.dir === 'v' && car.floor >= fromFl) {
+                        const floors = car.floor - fromFl;
+                        const stopsBefore = car.queue.filter(s => s > fromFl).length;
+                        cost = (floors * MOVE_TIME) + (stopsBefore * STOP_TIME);
+                        note = `C = ${cost.toFixed(1)}s (Downward Approach)`;
+                    } else if (car.dir === '-' || car.dir === 'IDLE') {
+                        cost = Math.abs(car.floor - fromFl) * MOVE_TIME;
+                        note = `C = ${cost.toFixed(1)}s (Idle Standby)`;
+                    } else {
+                        cost = 100.0;
+                        note = `Penalty 100s (Opposite Direction)`;
+                    }
+                } else {
+                    // No target selected yet (idle hall estimation to reach origin)
+                    if (car.dir === '^' && car.floor <= fromFl) {
+                        const floors = fromFl - car.floor;
+                        const stopsBefore = car.queue.filter(s => s < fromFl).length;
+                        cost = (floors * MOVE_TIME) + (stopsBefore * STOP_TIME);
+                        note = `C = ${cost.toFixed(1)}s (Upward Approach)`;
+                    } else if (car.dir === 'v' && car.floor >= fromFl) {
+                        const floors = car.floor - fromFl;
+                        const stopsBefore = car.queue.filter(s => s > fromFl).length;
+                        cost = (floors * MOVE_TIME) + (stopsBefore * STOP_TIME);
+                        note = `C = ${cost.toFixed(1)}s (Downward Approach)`;
+                    } else if (car.dir === '-' || car.dir === 'IDLE') {
+                        cost = Math.abs(car.floor - fromFl) * MOVE_TIME;
+                        note = `C = ${cost.toFixed(1)}s (Idle Standby)`;
+                    } else {
+                        cost = 100.0;
+                        note = `Penalty 100s (Opposite Direction)`;
+                    }
+                }
+
+                results[id] = { cost, status: note, color: cost < 100 ? 'var(--green)' : 'var(--amber)' };
+                if (cost < minCost) {
+                    minCost = cost;
+                    bestCar = id;
+                }
+            });
+
+            // Update UI Table (Only Cost & Reason)
+            ['a', 'b', 'c', 'd'].forEach(id => {
+                const res = results[id];
+                const valEl = document.getElementById(`cost-${id}`);
+                if (valEl) {
+                    if (id === bestCar && res.cost < Infinity) {
+                        valEl.innerHTML = `<b style="color:var(--green);">${res.status} [BEST CANDIDATE]</b>`;
+                    } else {
+                        valEl.innerHTML = `<span style="color:${res.color};">${res.status}</span>`;
+                    }
+                }
+            });
+
+            return { bestCar: bestCar ? bestCar.toUpperCase() : null, minCost };
+        }
+
+        // Update Lift Cab Visual & Cable
+        function updateCabVisual(carKey) {
+            const car = elevatorState[carKey];
+            if (!car) return;
+
+            const cab = document.getElementById(`cab-${carKey}`);
+            const cable = document.getElementById(`cable-${carKey}`);
+            const txt = document.getElementById(`cab-txt-${carKey}`);
+
+            const ratio = Math.max(0, Math.min(1, (car.floor - 1) / 19));
+            if (cab) {
+                cab.style.bottom = `calc((100% - 16px) * ${ratio})`;
+            }
+            if (cable) {
+                cable.style.height = `calc(100% - ((100% - 16px) * ${ratio} + 16px))`;
+            }
+            if (txt) {
+                txt.textContent = `${String(car.floor).padStart(2, '0')}${car.dir}`;
+            }
+
+            // Update Car Row Table
+            const flElem = document.getElementById(`car-fl-${carKey}`);
+            const dirElem = document.getElementById(`car-dir-${carKey}`);
+            const doorElem = document.getElementById(`car-door-${carKey}`);
+            const loadElem = document.getElementById(`car-load-${carKey}`);
+            const statElem = document.getElementById(`car-stat-${carKey}`);
+
+            if (flElem) flElem.textContent = String(car.floor).padStart(2, '0');
+            if (dirElem) dirElem.textContent = car.dir;
+            if (doorElem) {
+                doorElem.textContent = car.door === 'OPEN' ? '[  ]' : '[||]';
+                doorElem.className = 'car-door ' + (car.door === 'OPEN' ? 'status-warn' : 'status-ok');
+            }
+            if (loadElem) loadElem.textContent = car.load + '%';
+            if (statElem) {
+                statElem.textContent = car.fault;
+                statElem.className = 'car-fault ' + car.statusClass;
+            }
+        }
+
+        // Update Hall Marker Line in the Shaft
+        function updateHallMarker() {
+            const line = document.getElementById('hall-marker-line');
+            const label = document.getElementById('hall-marker-label');
+            if (!line) return;
+            const ratio = Math.max(0, Math.min(1, (currentOrigin - 1) / 19));
+            line.style.bottom = `calc((100% - 16px) * ${ratio} + 8px)`;
+            if (label) label.textContent = `HALL FL ${String(currentOrigin).padStart(2, '0')}`;
+        }
+
+        // Move car floor by floor
+        function moveCarStepByStep(carKey, targetFloor, onComplete) {
+            const car = elevatorState[carKey];
+            if (!car) return;
+
+            stopCarMovement(carKey);
+
+            targetFloor = Math.max(1, Math.min(20, targetFloor));
+            car.floor = Math.max(1, Math.min(20, car.floor));
+
+            if (car.floor === targetFloor) {
+                car.dir = '-';
+                car.door = 'CLOSED';
+                updateCabVisual(carKey);
+                calculateAndRenderCosts();
+                if (onComplete) onComplete();
+                return;
+            }
+
+            const step = targetFloor > car.floor ? 1 : -1;
+            car.dir = step > 0 ? '^' : 'v';
+            car.door = 'CLOSED';
+            updateCabVisual(carKey);
+            calculateAndRenderCosts();
+
+            carMovementTimers[carKey] = setInterval(() => {
+                car.floor += step;
+                car.floor = Math.max(1, Math.min(20, car.floor));
+                updateCabVisual(carKey);
+                calculateAndRenderCosts();
+                addLog(`CAR_${carKey.toUpperCase()}`, `Passing Floor ${String(car.floor).padStart(2, '0')} ${car.dir}`);
+
+                if ((step > 0 && car.floor >= targetFloor) || (step < 0 && car.floor <= targetFloor)) {
+                    car.floor = targetFloor;
+                    stopCarMovement(carKey);
+                    car.dir = '-';
+                    updateCabVisual(carKey);
+                    calculateAndRenderCosts();
+                    if (onComplete) onComplete();
+                }
+            }, 600);
+        }
+
+        // Full Dispatch Journey
+        function animateDispatchTrip(carKey, fromFloor, toFloor, cost) {
+            const car = elevatorState[carKey];
+            if (!car || systemMode === 'FIRE_ALARM') return;
+
+            stopCarMovement(carKey);
+
+            const cab = document.getElementById(`cab-${carKey}`);
+            if (cab) {
+                cab.classList.remove('doors-open');
+                cab.classList.add('active-moving');
+            }
+
+            // Phase 1: Go to passenger origin floor
+            moveCarStepByStep(carKey, fromFloor, () => {
+                if (systemMode === 'FIRE_ALARM') return;
+                playSound('chime');
+                car.door = 'OPEN';
+                updateCabVisual(carKey);
+
+                if (cab) {
+                    cab.classList.remove('active-moving');
+                    cab.classList.add('doors-open');
+                }
+                document.getElementById("vfd-status").innerHTML = 
+                    `<span style="color:var(--green); font-size:13.5px; font-weight:bold;">[ARRIVED] CAR ${carKey.toUpperCase()} ถึงชั้น ${fromFloor} แล้ว (เปิดประตูรับผู้โดยสาร [  ])</span>`;
+                addLog(`CAR_${carKey.toUpperCase()}`, `Arrived at Floor ${fromFloor}. Doors Open.`);
+
+                carDwellTimers[carKey] = setTimeout(() => {
+                    if (systemMode === 'FIRE_ALARM') return;
+                    car.door = 'CLOSED';
+                    updateCabVisual(carKey);
+                    if (cab) {
+                        cab.classList.remove('doors-open');
+                        cab.classList.add('active-moving');
+                    }
+                    document.getElementById("vfd-status").innerHTML = 
+                        `<span style="color:var(--green); font-size:13.5px; font-weight:bold;">[EN ROUTE] CAR ${carKey.toUpperCase()} กำลังเดินทางไปชั้นเป้าหมาย ${toFloor}...</span>`;
+
+                    // Phase 2: Travel to destination floor
+                    moveCarStepByStep(carKey, toFloor, () => {
+                        if (systemMode === 'FIRE_ALARM') return;
+                        playSound('chime');
+                        car.door = 'OPEN';
+                        updateCabVisual(carKey);
+
+                        if (cab) {
+                            cab.classList.remove('active-moving');
+                            cab.classList.add('doors-open');
+                        }
+                        document.getElementById("vfd-status").innerHTML = 
+                            `<span style="color:var(--green); font-size:13.5px; font-weight:bold;">[COMPLETED] ถึงชั้น ${toFloor} แล้ว [ CAR ${carKey.toUpperCase()} สำเร็จ ]</span>`;
+                        addLog(`CAR_${carKey.toUpperCase()}`, `Arrived at Target Floor ${toFloor}. Passenger disembarked.`);
+                        
+                        carDwellTimers[carKey] = setTimeout(() => {
+                            if (systemMode === 'FIRE_ALARM') return;
+                            car.door = 'CLOSED';
+                            if (cab) cab.classList.remove('doors-open');
+                            car.dir = '-';
+                            car.fault = 'NORMAL';
+                            car.statusClass = 'status-ok';
+                            updateCabVisual(carKey);
+                            calculateAndRenderCosts();
+                            isDispatching = false;
+                        }, 2500);
+                    });
+                }, 1800);
+            });
+        }
+
+        // Ambient elevator movement simulation
+        function startAmbientSimulation() {
+            if (ambientTimer) clearInterval(ambientTimer);
+            ambientTimer = setInterval(() => {
+                if (isDispatching || systemMode === 'FIRE_ALARM' || carMovementTimers.b) return;
+                const carB = elevatorState.b;
+                if (carB.dir === 'v') {
+                    if (carB.floor > 1) {
+                        carB.floor -= 1;
+                        if (carB.floor === 6 || carB.floor === 1) {
+                            carB.dir = carB.floor === 1 ? '^' : 'v';
+                        }
+                    } else {
+                        carB.dir = '^';
+                    }
+                } else {
+                    if (carB.floor < 15) {
+                        carB.floor += 1;
+                    } else {
+                        carB.dir = 'v';
+                    }
+                }
+                updateCabVisual('b');
+                calculateAndRenderCosts();
+            }, 3200);
+        }
+
+        // Clock display
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('clock').textContent = now.toLocaleTimeString('en-GB');
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // WebSocket Setup
+        const WS_URL = "ws://localhost:1880/ws/elevator";
+        let socket = null;
+
+        function initWS() {
+            if (socket) {
+                try {
+                    socket.onclose = null;
+                    socket.close();
+                } catch(e) {}
+                socket = null;
+            }
+            socket = new WebSocket(WS_URL);
+
+            socket.onopen = () => {
+                const badge = document.getElementById("engine-status");
+                if (engineMode === 'LIVE') {
+                    badge.className = "status-ok";
+                    badge.textContent = "[LIVE WS & MQTT: CONNECTED]";
+                }
+                addLog("WS", "Connected to Node-RED Central Controller (MQTT Active)");
+            };
+
+            socket.onmessage = (event) => {
+                try {
+                    const data = JSON.parse(event.data);
+                    handleIncomingDispatch(data);
+                } catch(e) {
+                    addLog("WS_ERR", "Payload parse error: " + event.data, "err");
+                }
+            };
+
+            socket.onclose = () => {
+                const badge = document.getElementById("engine-status");
+                if (engineMode === 'LIVE') {
+                    badge.className = "status-err";
+                    badge.textContent = "[LIVE WS & MQTT: OFFLINE]";
+                    setTimeout(initWS, 3000);
+                }
+            };
+        }
+
+        function handleIncomingDispatch(res) {
+            addLog("NODE-RED", `Received response: ${JSON.stringify(res)}`);
+            
+            if (res.status === "SUCCESS") {
+                document.getElementById("vfd-status").innerHTML = 
+                    `<span style="color:var(--green); font-size:14px; font-weight:bold;">[STEP 3] ไปขึ้นลิฟต์ [ CAR ${res.assigned_car} ]</span><br>` +
+                    `<span style="font-size:11px; color:#fff;">ชั้น ${res.from_floor} -> ชั้น ${res.target_floor} | เวลารอประมาณ: <b>${res.cost}s</b></span>`;
+                
+                document.getElementById("telemetry-assign").innerHTML = 
+                    `<b style="color:var(--green);">ASSIGNED: CAR-${res.assigned_car}</b> (COST: ${res.cost}s)`;
+                
+                const carKey = res.assigned_car.toLowerCase();
+                isDispatching = true;
+                animateDispatchTrip(carKey, res.from_floor, res.target_floor, res.cost);
+            } else if (res.status === "DENIED") {
+                playSound('alarm');
+                document.getElementById("vfd-status").innerHTML = `<span style="color:var(--red);">[DENIED] ${res.message}</span>`;
+            } else if (res.status === "EMERGENCY") {
+                triggerFireAlarmLocally();
+            } else if (res.status === "RESET_OK") {
+                addLog("NODE-RED", "System normalized and reset confirmed by Node-RED.");
+            }
+        }
+
+        function adjustOrigin(delta) {
+            if (systemMode === 'FIRE_ALARM') {
+                playSound('alarm');
+                return;
+            }
+            if (isDispatching) {
+                playSound('alarm');
+                addLog("HALL", "Cannot adjust origin floor while dispatch travel is active", "warn");
+                return;
+            }
+            playSound('click');
+            currentOrigin = Math.max(1, Math.min(20, currentOrigin + delta));
+            const str = String(currentOrigin).padStart(2, '0');
+            document.getElementById("hall-floor-disp").textContent = str;
+            updateHallMarker();
+
+            // If a badge was tapped, verify its permission for the new origin
+            if (authCard) {
+                if (!permissions[authCard] || !permissions[authCard].includes(currentOrigin)) {
+                    handleTimeout();
+                    addLog("SECURITY", `Session revoked: ${authCard} has no access to Floor ${currentOrigin}`, "warn");
+                    return;
+                }
+            }
+
+            calculateAndRenderCosts(currentOrigin, destFloor);
+            addLog("HALL", `Origin floor adjusted to Floor ${currentOrigin}`);
+        }
+
+        function selectCard(card, el) {
+            if (systemMode === 'FIRE_ALARM') {
+                playSound('alarm');
+                document.getElementById("vfd-status").innerHTML = 
+                    `<span style="color:var(--red); font-weight:bold;">[DENIED] SYSTEM LOCKED IN EMERGENCY FIRE MODE</span>`;
+                return;
+            }
+            if (isDispatching) {
+                playSound('alarm');
+                addLog('DISPATCH', 'Dispatcher busy. Please wait for current car trip to complete.', 'warn');
+                return;
+            }
+
+            // Verify access to current origin floor
+            if (!permissions[card] || !permissions[card].includes(currentOrigin)) {
+                playSound('alarm');
+                document.getElementById("vfd-status").innerHTML = 
+                    `<span style="color:var(--red); font-weight:bold;">[ACCESS DENIED] บัตร ${card} ไม่มีสิทธิ์ใช้งานที่ชั้น ${String(currentOrigin).padStart(2, '0')}</span>`;
+                addLog('SECURITY', `Access Denied: ${card} not authorized for Floor ${currentOrigin}`, 'err');
+                return;
+            }
+
+            playSound('auth');
+            authCard = card;
+            destFloor = null;
+            keyBuffer = '';
+            document.getElementById('dest-display').textContent = '--';
+            document.querySelectorAll('.key-btn').forEach(b => b.classList.remove('active'));
+
+            document.querySelectorAll('.rfid-card').forEach(c => c.classList.remove('selected'));
+            el.classList.add('selected');
+            
+            highlightAllowedKeys(card);
+            timerCountdown = 10;
+            if (timerInterval) clearInterval(timerInterval);
+
+            document.getElementById("vfd-status").innerHTML = 
+                `<span style="color:var(--amber);">[STEP 1 OK] แตะบัตรสำเร็จ (${card})</span><br>` +
+                `<span>[STEP 2] กรุณาระบุชั้นที่จะไป (เหลือเวลา <b id="timer-sec">10</b>s)</span>`;
+
+            timerInterval = setInterval(() => {
+                timerCountdown--;
+                const secEl = document.getElementById("timer-sec");
+                if (secEl) secEl.textContent = timerCountdown;
+                if (timerCountdown <= 0) {
+                    handleTimeout();
+                }
+            }, 1000);
+
+            addLog('RFID', `Card Authenticated: ${card} [Permitted Floors: ${permissions[card].join(',')}]`);
+            calculateAndRenderCosts(currentOrigin, null);
+        }
+
+        function handleTimeout() {
+            playSound('timeout');
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = null;
+            timerCountdown = 0;
+            authCard = null;
+            destFloor = null;
+            keyBuffer = '';
+            document.getElementById('dest-display').textContent = '--';
+            document.querySelectorAll('.key-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.rfid-card').forEach(c => c.classList.remove('selected'));
+            clearKeyHighlights();
+            document.getElementById("vfd-status").innerHTML = 
+                `<span style="color:var(--red); font-weight:bold;">[TIMEOUT] หมดเวลา 10s -- กรุณาแตะบัตร RFID ใหม่อีกครั้ง</span>`;
+            addLog("TIMEOUT", "10-second selection timeout expired. Authorization revoked. Please re-tap badge.", "err");
+            calculateAndRenderCosts(currentOrigin, null);
+        }
+
+        function pressKey(val) {
+            if (systemMode === 'FIRE_ALARM') {
+                playSound('alarm');
+                document.getElementById("vfd-status").innerHTML = 
+                    `<span style="color:var(--red); font-weight:bold;">[DENIED] KEYPAD LOCKED IN EMERGENCY FIRE MODE</span>`;
+                return;
+            }
+            if (isDispatching) {
+                playSound('alarm');
+                return;
+            }
+
+            playSound('click');
+
+            if (val === 'CLR') {
+                destFloor = null;
+                keyBuffer = '';
+                document.getElementById('dest-display').textContent = '--';
+                document.querySelectorAll('.key-btn').forEach(b => b.classList.remove('active'));
+                if (authCard) {
+                    document.getElementById("vfd-status").innerHTML = 
+                        `<span style="color:var(--amber);">ล้างค่าแล้ว กรุณาระบุชั้นใหม่ (เหลือเวลา <b id="timer-sec">${timerCountdown}</b>s)</span>`;
+                }
+                addLog('TERMINAL', 'Keypad cleared');
+                calculateAndRenderCosts(currentOrigin, null);
+                return;
+            }
+
+            if (!authCard) {
+                playSound('alarm');
+                document.getElementById("vfd-status").innerHTML = 
+                    `<span style="color:var(--red); font-weight:bold;">[AUTH REQUIRED] กรุณาแตะบัตร RFID ก่อนเลือกชั้น (MUST TAP BADGE)</span>`;
+                addLog('SECURITY', 'Keypad locked: Must tap RFID badge before selecting floor', 'err');
+                return;
+            }
+
+            // Disallow floor 0
+            if (val === 0 && keyBuffer === '') {
+                playSound('alarm');
+                addLog('KEYPAD', 'Invalid floor: Building floors range from 01 to 20', 'warn');
+                return;
+            }
+
+            keyBuffer += val.toString();
+            if (keyBuffer.length > 2) keyBuffer = val.toString();
+            let parsed = parseInt(keyBuffer, 10);
+            if (parsed > 20) {
+                keyBuffer = val.toString();
+                parsed = val;
+            }
+            destFloor = parsed;
+
+            document.getElementById('dest-display').textContent = String(destFloor).padStart(2, '0');
+            addLog('KEYPAD', `Floor registered: ${destFloor}`);
+            
+            calculateAndRenderCosts(currentOrigin, destFloor);
+
+            if (destFloor === currentOrigin) {
+                playSound('alarm');
+                const canBePrefix = (destFloor === 1 || destFloor === 2);
+                const hint = canBePrefix ? `(สามารถกดเลขหลักที่สองต่อได้ เช่น ${destFloor}0 หรือกด CLR)` : `(กรุณาระบุชั้นอื่น หรือกด CLR เพื่อล้าง)`;
+                document.getElementById("vfd-status").innerHTML = 
+                    `<span style="color:var(--amber); font-weight:bold;">[SAME FLOOR] คุณอยู่ที่ชั้น ${String(currentOrigin).padStart(2, '0')} อยู่แล้ว</span><br>` +
+                    `<span style="font-size:10.5px; color:#ddd;">${hint} (เหลือเวลา <b id="timer-sec">${timerCountdown}</b>s)</span>`;
+                addLog('KEYPAD', `Selected current floor ${currentOrigin}. Waiting for second digit or different floor.`);
+                return;
+            }
+
+            if (permissions[authCard] && !permissions[authCard].includes(destFloor)) {
+                playSound('alarm');
+                addLog('AUTH', `Floor ${destFloor} not permitted for ${authCard}`, 'err');
+                document.getElementById("vfd-status").innerHTML = 
+                    `<span style="color:var(--red);">[DENIED] บัตรไม่มีสิทธิ์ไปชั้น ${destFloor}</span> ` +
+                    `<span style="font-size:11px; color:#aaa;">(เหลือเวลา <b id="timer-sec">${timerCountdown}</b>s)</span>`;
+            } else {
+                document.getElementById("vfd-status").innerHTML = 
+                    `<span style="color:var(--green);">[FLOOR ${destFloor} SELECTED] กด [ ENGAGE DISPATCH ]</span> ` +
+                    `<span style="font-size:11px; color:var(--amber);">(เหลือเวลา <b id="timer-sec">${timerCountdown}</b>s)</span>`;
+            }
+        }
+
+        function dispatch() {
+            if (systemMode === 'FIRE_ALARM') {
+                playSound('alarm');
+                document.getElementById("vfd-status").innerHTML = 
+                    `<span style="color:var(--red); font-weight:bold;">[DENIED] DISPATCH LOCKED IN EMERGENCY FIRE MODE</span>`;
+                return;
+            }
+
+            if (isDispatching) {
+                playSound('alarm');
+                addLog('DISPATCH', 'Failed: Dispatcher currently executing a trip. Standby.', 'warn');
+                return;
+            }
+
+            if (!authCard) {
+                playSound('alarm');
+                document.getElementById("vfd-status").innerHTML = 
+                    `<span style="color:var(--red); font-weight:bold;">[AUTH REQUIRED] กรุณาแตะบัตร RFID ก่อนส่งคำขอ (MUST TAP BADGE)</span>`;
+                addLog('DISPATCH', 'Failed: No RFID badge authorized (Session expired or not tapped)', 'err');
+                return;
+            }
+            if (!destFloor) {
+                playSound('alarm');
+                document.getElementById("vfd-status").innerHTML = 
+                    `<span style="color:var(--amber);">[STEP 2 REQUIRED] กรุณาระบุชั้นที่จะไปก่อนกดส่ง</span>`;
+                addLog('DISPATCH', 'Failed: No destination floor selected', 'err');
+                return;
+            }
+            if (destFloor === currentOrigin) {
+                playSound('alarm');
+                destFloor = null;
+                keyBuffer = '';
+                document.getElementById('dest-display').textContent = '--';
+                calculateAndRenderCosts(currentOrigin, null);
+                document.getElementById("vfd-status").innerHTML = 
+                    `<span style="color:var(--amber); font-weight:bold;">[INVALID] อยู่ที่ชั้น ${String(currentOrigin).padStart(2, '0')} อยู่แล้ว ไม่จำเป็นต้องเดินทาง (ระบบล้างค่าให้แล้ว กรุณาระบุชั้นใหม่)</span><br>` +
+                    `<span style="font-size:11px; color:#aaa;">(เหลือเวลา <b id="timer-sec">${timerCountdown}</b>s)</span>`;
+                addLog('DISPATCH', `Rejected: Origin and destination are identical (Floor ${currentOrigin})`, 'warn');
+                return;
+            }
+            if (permissions[authCard] && !permissions[authCard].includes(destFloor)) {
+                playSound('alarm');
+                document.getElementById("vfd-status").innerHTML = 
+                    `<span style="color:var(--red); font-weight:bold;">[DENIED] ปฏิเสธคำขอ: บัตร ${authCard} ไม่มีสิทธิ์ไปชั้น ${destFloor}</span>`;
+                addLog('DISPATCH', `Failed: Security authorization denied for floor ${destFloor}`, 'err');
+                return;
+            }
+
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = null;
+
+            const payload = {
+                from_floor: currentOrigin,
+                target_floor: destFloor,
+                card_id: authCard
+            };
+
+            const dispatchedAuth = authCard;
+            authCard = null;
+            document.querySelectorAll('.rfid-card').forEach(c => c.classList.remove('selected'));
+            clearKeyHighlights();
+
+            if (engineMode === 'LIVE' && socket && socket.readyState === WebSocket.OPEN) {
+                socket.send(JSON.stringify(payload));
+                addLog('DISPATCH_TX', `Sent request to Node-RED: FL ${currentOrigin} -> ${destFloor} (${dispatchedAuth})`);
+                document.getElementById("vfd-status").innerHTML = `<span style="color:var(--blue);">กำลังประมวลผลการจัดสรรลิฟต์...</span>`;
+            } else {
+                addLog('DISPATCH_LOCAL', `Local Dispatch Evaluator processing: FL ${currentOrigin} -> ${destFloor}`);
+                const evalResult = calculateAndRenderCosts(currentOrigin, destFloor);
+                handleIncomingDispatch({
+                    status: "SUCCESS",
+                    assigned_car: evalResult.bestCar || "A",
+                    from_floor: currentOrigin,
+                    target_floor: destFloor,
+                    cost: evalResult.minCost
+                });
+            }
+        }
+
+        // Emergency Fire Alarm Toggle (Engage / Cancel)
+        function triggerFireAlarm() {
+            if (systemMode === 'FIRE_ALARM') {
+                cancelFireAlarm();
+            } else {
+                engageFireAlarm();
+            }
+        }
+
+        function engageFireAlarm() {
+            // Forward engagement to Node-RED
+            if (socket && socket.readyState === WebSocket.OPEN) {
+                socket.send(JSON.stringify({ action: "fire_alarm", topic: "fire_alarm", payload: true }));
+            }
+            triggerFireAlarmLocally();
+        }
+
+        function cancelFireAlarm() {
+            // Forward cancellation to Node-RED
+            if (socket && socket.readyState === WebSocket.OPEN) {
+                socket.send(JSON.stringify({ action: "cancel_fire", topic: "fire_alarm", payload: false }));
+            }
+            addLog("SAFETY", "Emergency Fire Alarm Cancelled / Silenced by Operator. System restored.", "warn");
+            resetSystem();
+        }
+
+        function triggerFireAlarmLocally() {
+            systemMode = 'FIRE_ALARM';
+            stopCarMovement();
+            playSound('alarm');
+
+            const btn = document.getElementById('btn-fire-alarm');
+            if (btn) {
+                btn.textContent = 'CANCEL FIRE ALARM (ACTIVE)';
+                btn.classList.add('fire-active');
+            }
+
+            if (fireAlarmSoundInterval) clearInterval(fireAlarmSoundInterval);
+            fireAlarmSoundInterval = setInterval(() => {
+                if (systemMode === 'FIRE_ALARM') playSound('alarm');
+                else clearInterval(fireAlarmSoundInterval);
+            }, 3000);
+
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = null;
+            isDispatching = false;
+            authCard = null;
+            destFloor = null;
+            keyBuffer = '';
+            document.getElementById('dest-display').textContent = '--';
+            document.querySelectorAll('.rfid-card').forEach(c => c.classList.remove('selected'));
+            clearKeyHighlights();
+
+            addLog("SAFETY", "Emergency Fire Interlock Relay Tripped! Phase I Recall Initiated: Returning all cars to Floor 1", "err");
+            document.getElementById("vfd-status").innerHTML = 
+                `<span style="color:var(--red); font-weight:bold; font-size:13px;">[EMERGENCY] FIRE ALARM ACTIVE - OUT OF SERVICE</span><br>` +
+                `<span style="color:#ff8888; font-size:10.5px;">RECALLING ALL CARS TO GROUND FLOOR 01 (CLICK TO CANCEL)</span>`;
+            
+            document.getElementById("telemetry-assign").innerHTML = 
+                `<b style="color:var(--red);">[SAFETY CHAIN TRIPPED] EMERGENCY FIRE RECALL ACTIVE</b>`;
+
+            calculateAndRenderCosts();
+
+            // Animate all operational cars returning immediately to Floor 1
+            ['a', 'b', 'c'].forEach(k => {
+                const car = elevatorState[k];
+                car.fault = 'FIRE RECALL (FL 01)';
+                car.statusClass = 'status-err';
+                car.door = 'CLOSED';
+                const cab = document.getElementById(`cab-${k}`);
+                if (cab) {
+                    cab.classList.remove('doors-open');
+                    cab.classList.add('active-moving');
+                }
+                moveCarStepByStep(k, 1, () => {
+                    car.door = 'OPEN';
+                    car.dir = '-';
+                    updateCabVisual(k);
+                    if (cab) {
+                        cab.classList.remove('active-moving');
+                        cab.classList.add('doors-open');
+                    }
+                    addLog(`CAR_${k.toUpperCase()}`, `Phase I Recall Complete: Parked at Floor 1 with Doors Open for evacuation.`);
+                });
+            });
+        }
+
+        function resetSystem() {
+            playSound('click');
+            systemMode = 'NORMAL';
+            stopCarMovement();
+            if (fireAlarmSoundInterval) clearInterval(fireAlarmSoundInterval);
+            fireAlarmSoundInterval = null;
+
+            // Reset Fire Alarm button UI
+            const btn = document.getElementById('btn-fire-alarm');
+            if (btn) {
+                btn.textContent = 'EMERGENCY FIRE ALARM';
+                btn.classList.remove('fire-active');
+            }
+
+            // Forward reset command to Node-RED
+            if (socket && socket.readyState === WebSocket.OPEN) {
+                socket.send(JSON.stringify({ action: "reset_system", topic: "reset_system", payload: true }));
+            }
+
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = null;
+            timerCountdown = 0;
+            addLog("SYSTEM", "Resetting system parameters to default normal");
+            pressKey('CLR');
+            authCard = null;
+            destFloor = null;
+            keyBuffer = '';
+            isDispatching = false;
+            document.getElementById('dest-display').textContent = '--';
+            document.querySelectorAll('.rfid-card').forEach(c => c.classList.remove('selected'));
+            clearKeyHighlights();
+            document.querySelectorAll('.lift-cab').forEach(c => {
+                c.classList.remove('doors-open', 'active-moving');
+            });
+            document.getElementById("vfd-status").innerHTML = `[1] PLEASE TAP RFID BADGE`;
+            document.getElementById("telemetry-assign").innerHTML = `READY // STANDBY`;
+            document.getElementById("telemetry-assign").style.color = "var(--text-dim)";
+
+            // Reset car positions and states
+            elevatorState.a = { id: 'A', floor: 2, dir: '^', door: 'CLOSED', load: 50, queue: [9, 16], fault: 'NORMAL', statusClass: 'status-ok' };
+            elevatorState.b = { id: 'B', floor: 12, dir: 'v', door: 'CLOSED', load: 30, queue: [6, 1], fault: 'NORMAL', statusClass: 'status-ok' };
+            elevatorState.c = { id: 'C', floor: 3, dir: '^', door: 'CLOSED', load: 90, queue: [5], fault: 'OVERLOAD', statusClass: 'status-warn' };
+            elevatorState.d = { id: 'D', floor: 1, dir: '-', door: 'CLOSED', load: 0, queue: [], fault: 'HB TIMEOUT', statusClass: 'status-err' };
+
+            ['a', 'b', 'c', 'd'].forEach(updateCabVisual);
+            updateHallMarker();
+            calculateAndRenderCosts();
+        }
+
+        function addLog(source, msg, type='info') {
+            const box = document.getElementById('log-box');
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            const time = new Date().toLocaleTimeString('en-GB');
+            const color = type === 'err' ? 'var(--red)' : (type === 'warn' ? 'var(--amber)' : 'var(--green)');
+            entry.innerHTML = `<span class="log-time">[${time}] ${source}:</span> <span class="log-msg" style="color:${color}">${msg}</span>`;
+            box.insertBefore(entry, box.firstChild);
+        }
+
+        // Physical Keyboard Event Listener
+        window.addEventListener('keydown', (e) => {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+            if (e.key >= '0' && e.key <= '9') {
+                pressKey(parseInt(e.key, 10));
+            } else if (e.key === 'Backspace' || e.key === 'Delete') {
+                pressKey('CLR');
+            } else if (e.key === 'Enter') {
+                dispatch();
+            } else if (e.key === 'Escape') {
+                resetSystem();
+            } else if (e.key === '+' || e.key === '=' || e.key === 'ArrowUp') {
+                adjustOrigin(1);
+            } else if (e.key === '-' || e.key === '_' || e.key === 'ArrowDown') {
+                adjustOrigin(-1);
+            } else if (e.key.toLowerCase() === 'm') {
+                toggleMute();
+            }
+        });
+
+        window.onload = () => {
+            initWS();
+            ['a', 'b', 'c', 'd'].forEach(updateCabVisual);
+            updateHallMarker();
+            calculateAndRenderCosts();
+            startAmbientSimulation();
+        };
+    </script>
+</body>
+</html>
