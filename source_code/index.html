@@ -560,7 +560,7 @@
         <span class="status-pill" id="sound-toggle" onclick="toggleMute()" title="Click to mute/unmute audio effects">
             AUDIO: [ON]
         </span>
-        <span style="color:var(--text-dim); font-size:10px;">KB SHORTCUT: [0-9, BKSP, ENTER]</span>
+        <span style="color:var(--text-dim); font-size:10px;">KB: [0-9 Keypad | Enter: Send | Bksp: CLR | U/A/G: Card | F: Fire | &uarr;/&darr;: Fl | Esc: Reset]</span>
         <span id="clock">00:00:00</span>
     </div>
 
@@ -1790,6 +1790,17 @@
                 adjustOrigin(-1);
             } else if (e.key.toLowerCase() === 'm') {
                 toggleMute();
+            } else if (e.key.toLowerCase() === 'u') {
+                const el = document.querySelector('.rfid-card[onclick*="CARD_USER1"]');
+                if (el) selectCard('CARD_USER1', el);
+            } else if (e.key.toLowerCase() === 'a') {
+                const el = document.querySelector('.rfid-card[onclick*="CARD_ADMIN"]');
+                if (el) selectCard('CARD_ADMIN', el);
+            } else if (e.key.toLowerCase() === 'g') {
+                const el = document.querySelector('.rfid-card[onclick*="CARD_GUEST"]');
+                if (el) selectCard('CARD_GUEST', el);
+            } else if (e.key.toLowerCase() === 'f') {
+                triggerFireAlarm();
             }
         });
 
