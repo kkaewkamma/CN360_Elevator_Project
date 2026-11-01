@@ -930,5 +930,103 @@
         "x": 730,
         "y": 520,
         "wires": []
+    },
+    {
+        "id": "http_in_scada",
+        "type": "http in",
+        "z": "ca05771492c25f04",
+        "name": "GET /scada",
+        "url": "/scada",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 140,
+        "y": 80,
+        "wires": [
+            [
+                "file_in_scada"
+            ]
+        ]
+    },
+    {
+        "id": "http_in_index",
+        "type": "http in",
+        "z": "ca05771492c25f04",
+        "name": "GET /index",
+        "url": "/index",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 140,
+        "y": 120,
+        "wires": [
+            [
+                "file_in_scada"
+            ]
+        ]
+    },
+    {
+        "id": "file_in_scada",
+        "type": "file in",
+        "z": "ca05771492c25f04",
+        "name": "Read index.html",
+        "filename": "c:/Users/USER/OneDrive/Desktop/ลิฟ 360/index.html",
+        "filenameType": "str",
+        "format": "utf8",
+        "chunk": false,
+        "sendError": false,
+        "encoding": "none",
+        "allProps": false,
+        "x": 360,
+        "y": 100,
+        "wires": [
+            [
+                "http_resp_scada"
+            ]
+        ]
+    },
+    {
+        "id": "http_resp_scada",
+        "type": "http response",
+        "z": "ca05771492c25f04",
+        "name": "Serve SCADA HTML",
+        "statusCode": "200",
+        "headers": {
+            "content-type": "text/html; charset=utf-8"
+        },
+        "x": 580,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "ui_link_to_scada",
+        "type": "ui_template",
+        "z": "ca05771492c25f04",
+        "group": "ui_group_hall",
+        "name": "Link to SCADA Panel",
+        "order": 0,
+        "width": "6",
+        "height": "2",
+        "format": "<div style=\"padding: 4px; text-align: center;\">\n    <a href=\"/scada\" target=\"_blank\" style=\"display: block; background: linear-gradient(135deg, #10b981, #059669); color: #ffffff; text-decoration: none; padding: 10px 14px; border-radius: 6px; font-weight: bold; font-size: 13.5px; box-shadow: 0 3px 6px rgba(0,0,0,0.25); border: 1px solid #34d399; letter-spacing: 0.5px;\">\n        OPEN 20-FLOOR SCADA CONSOLE (index.html) &rarr;\n    </a>\n</div>",
+        "storeOutMessages": false,
+        "fwdInMessages": false,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 400,
+        "y": 40,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "comment_scada_link",
+        "type": "comment",
+        "z": "ca05771492c25f04",
+        "name": "WEB SCADA CONSOLE: http://localhost:1880/scada",
+        "info": "Click / open http://localhost:1880/scada to view the full 20-Floor Industrial Supervisory SCADA Panel.",
+        "x": 240,
+        "y": 40,
+        "wires": []
     }
 ]
