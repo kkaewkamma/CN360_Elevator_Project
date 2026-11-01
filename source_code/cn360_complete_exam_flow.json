@@ -1,13 +1,5 @@
 [
     {
-        "id": "5241ceb3161245c8",
-        "type": "tab",
-        "label": "Flow 1",
-        "disabled": false,
-        "info": "",
-        "env": []
-    },
-    {
         "id": "ca05771492c25f04",
         "type": "tab",
         "label": "CN360 Complete Elevator System",
@@ -172,6 +164,35 @@
         "disp": true,
         "width": "6",
         "collapse": false
+    },
+    {
+        "id": "mqtt_broker_local",
+        "type": "mqtt-broker",
+        "name": "Local Mosquitto 1883",
+        "broker": "127.0.0.1",
+        "port": "1883",
+        "clientid": "nodered_elevator_controller",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "elevator/controller/status",
+        "birthQos": "0",
+        "birthRetain": "true",
+        "birthPayload": "ONLINE",
+        "birthMsg": {},
+        "closeTopic": "elevator/controller/status",
+        "closeQos": "0",
+        "closeRetain": "true",
+        "closePayload": "OFFLINE",
+        "closeMsg": {},
+        "willTopic": "elevator/controller/status",
+        "willQos": "0",
+        "willRetain": "true",
+        "willPayload": "OFFLINE",
+        "willMsg": {}
     },
     {
         "id": "ad7d428352dec716",
@@ -675,8 +696,8 @@
         "topic": "timer_tick",
         "payload": "",
         "payloadType": "date",
-        "x": 130,
-        "y": 480,
+        "x": 150,
+        "y": 640,
         "wires": [
             [
                 "bc9285fb54c6b954",
@@ -695,8 +716,8 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 390,
-        "y": 480,
+        "x": 410,
+        "y": 640,
         "wires": [
             [
                 "9e3b291ca46b94ed",
@@ -715,8 +736,8 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 670,
-        "y": 480,
+        "x": 690,
+        "y": 640,
         "wires": [
             [
                 "20ea89a487d2776b"
@@ -737,8 +758,8 @@
         "fwdInMessages": true,
         "resendOnRefresh": true,
         "templateScope": "local",
-        "x": 890,
-        "y": 480,
+        "x": 910,
+        "y": 640,
         "wires": [
             []
         ]
@@ -766,8 +787,8 @@
         "offvalueType": "bool",
         "officon": "",
         "offcolor": "",
-        "x": 130,
-        "y": 560,
+        "x": 150,
+        "y": 720,
         "wires": [
             [
                 "d228adc969309c49"
@@ -785,42 +806,13 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 370,
-        "y": 560,
+        "x": 390,
+        "y": 720,
         "wires": [
             [
                 "9e3b291ca46b94ed"
             ]
         ]
-    },
-    {
-        "id": "mqtt_broker_local",
-        "type": "mqtt-broker",
-        "name": "Local Mosquitto 1883",
-        "broker": "127.0.0.1",
-        "port": "1883",
-        "clientid": "nodered_elevator_controller",
-        "autoConnect": true,
-        "usetls": false,
-        "protocolVersion": "4",
-        "keepalive": "60",
-        "cleansession": true,
-        "autoUnsubscribe": true,
-        "birthTopic": "elevator/controller/status",
-        "birthQos": "0",
-        "birthRetain": "true",
-        "birthPayload": "ONLINE",
-        "birthMsg": {},
-        "closeTopic": "elevator/controller/status",
-        "closeQos": "0",
-        "closeRetain": "true",
-        "closePayload": "OFFLINE",
-        "closeMsg": {},
-        "willTopic": "elevator/controller/status",
-        "willQos": "0",
-        "willRetain": "true",
-        "willPayload": "OFFLINE",
-        "willMsg": {}
     },
     {
         "id": "mqtt_in_call_req",
@@ -835,8 +827,8 @@
         "rap": true,
         "rh": 0,
         "inputs": 0,
-        "x": 180,
-        "y": 280,
+        "x": 150,
+        "y": 440,
         "wires": [
             [
                 "c1d3d72bf940b726"
@@ -856,8 +848,8 @@
         "rap": true,
         "rh": 0,
         "inputs": 0,
-        "x": 180,
-        "y": 340,
+        "x": 150,
+        "y": 500,
         "wires": [
             [
                 "c1d3d72bf940b726"
@@ -877,8 +869,8 @@
         "rap": true,
         "rh": 0,
         "inputs": 0,
-        "x": 180,
-        "y": 400,
+        "x": 150,
+        "y": 560,
         "wires": [
             [
                 "c1d3d72bf940b726"
@@ -935,8 +927,8 @@
         "correl": "",
         "expiry": "",
         "broker": "mqtt_broker_local",
-        "x": 760,
-        "y": 420,
+        "x": 730,
+        "y": 520,
         "wires": []
     }
 ]
