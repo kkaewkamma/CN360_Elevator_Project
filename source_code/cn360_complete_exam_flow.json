@@ -211,8 +211,8 @@
         "topic": "",
         "payload": "",
         "payloadType": "date",
-        "x": 120,
-        "y": 60,
+        "x": 140,
+        "y": 100,
         "wires": [
             [
                 "cd81c9ebe77ab0f7"
@@ -230,8 +230,8 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 320,
-        "y": 60,
+        "x": 440,
+        "y": 100,
         "wires": [
             [
                 "9e3b291ca46b94ed"
@@ -357,8 +357,8 @@
         "payload": "",
         "topic": "set_from_floor",
         "topicType": "str",
-        "x": 130,
-        "y": 140,
+        "x": 140,
+        "y": 650,
         "wires": [
             [
                 "1267913c90fdaba4"
@@ -399,8 +399,8 @@
         "payload": "",
         "topic": "set_badge",
         "topicType": "str",
-        "x": 130,
-        "y": 180,
+        "x": 140,
+        "y": 690,
         "wires": [
             [
                 "1267913c90fdaba4"
@@ -424,8 +424,8 @@
         "icon": "",
         "topic": "tap_card",
         "topicType": "str",
-        "x": 130,
-        "y": 220,
+        "x": 140,
+        "y": 730,
         "wires": [
             [
                 "1267913c90fdaba4"
@@ -552,7 +552,7 @@
         "topic": "set_target_floor",
         "topicType": "str",
         "x": 140,
-        "y": 260,
+        "y": 770,
         "wires": [
             [
                 "1267913c90fdaba4"
@@ -577,7 +577,7 @@
         "topic": "submit_target",
         "topicType": "str",
         "x": 140,
-        "y": 300,
+        "y": 810,
         "wires": [
             [
                 "1267913c90fdaba4"
@@ -595,8 +595,8 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 450,
-        "y": 240,
+        "x": 480,
+        "y": 730,
         "wires": [
             [
                 "5dc04000d5027143"
@@ -620,8 +620,8 @@
         "fwdInMessages": true,
         "resendOnRefresh": true,
         "templateScope": "local",
-        "x": 730,
-        "y": 220,
+        "x": 820,
+        "y": 460,
         "wires": [
             []
         ]
@@ -633,8 +633,8 @@
         "name": "WS Call Request",
         "server": "8b9d575e5fe6e1b1",
         "client": "",
-        "x": 150,
-        "y": 380,
+        "x": 140,
+        "y": 340,
         "wires": [
             [
                 "c1d3d72bf940b726"
@@ -648,8 +648,8 @@
         "name": "WS Assign Response",
         "server": "8b9d575e5fe6e1b1",
         "client": "",
-        "x": 750,
-        "y": 380,
+        "x": 820,
+        "y": 340,
         "wires": []
     },
     {
@@ -663,8 +663,8 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 460,
-        "y": 380,
+        "x": 480,
+        "y": 430,
         "wires": [
             [
                 "5013c26d40cad3cf",
@@ -696,8 +696,8 @@
         "topic": "timer_tick",
         "payload": "",
         "payloadType": "date",
-        "x": 150,
-        "y": 640,
+        "x": 140,
+        "y": 940,
         "wires": [
             [
                 "bc9285fb54c6b954",
@@ -716,8 +716,8 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 410,
-        "y": 640,
+        "x": 480,
+        "y": 940,
         "wires": [
             [
                 "9e3b291ca46b94ed",
@@ -736,8 +736,8 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 690,
-        "y": 640,
+        "x": 820,
+        "y": 970,
         "wires": [
             [
                 "20ea89a487d2776b"
@@ -758,8 +758,8 @@
         "fwdInMessages": true,
         "resendOnRefresh": true,
         "templateScope": "local",
-        "x": 910,
-        "y": 640,
+        "x": 1080,
+        "y": 970,
         "wires": [
             []
         ]
@@ -787,8 +787,8 @@
         "offvalueType": "bool",
         "officon": "",
         "offcolor": "",
-        "x": 150,
-        "y": 720,
+        "x": 140,
+        "y": 1110,
         "wires": [
             [
                 "d228adc969309c49"
@@ -806,8 +806,8 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 390,
-        "y": 720,
+        "x": 480,
+        "y": 1110,
         "wires": [
             [
                 "9e3b291ca46b94ed"
@@ -827,8 +827,8 @@
         "rap": true,
         "rh": 0,
         "inputs": 0,
-        "x": 150,
-        "y": 440,
+        "x": 140,
+        "y": 400,
         "wires": [
             [
                 "c1d3d72bf940b726"
@@ -848,8 +848,8 @@
         "rap": true,
         "rh": 0,
         "inputs": 0,
-        "x": 150,
-        "y": 500,
+        "x": 140,
+        "y": 460,
         "wires": [
             [
                 "c1d3d72bf940b726"
@@ -869,8 +869,8 @@
         "rap": true,
         "rh": 0,
         "inputs": 0,
-        "x": 150,
-        "y": 560,
+        "x": 140,
+        "y": 520,
         "wires": [
             [
                 "c1d3d72bf940b726"
@@ -891,8 +891,8 @@
         "correl": "",
         "expiry": "",
         "broker": "mqtt_broker_local",
-        "x": 760,
-        "y": 160,
+        "x": 820,
+        "y": 400,
         "wires": []
     },
     {
@@ -909,8 +909,8 @@
         "correl": "",
         "expiry": "",
         "broker": "mqtt_broker_local",
-        "x": 760,
-        "y": 280,
+        "x": 820,
+        "y": 520,
         "wires": []
     },
     {
@@ -927,8 +927,8 @@
         "correl": "",
         "expiry": "",
         "broker": "mqtt_broker_local",
-        "x": 730,
-        "y": 520,
+        "x": 820,
+        "y": 900,
         "wires": []
     },
     {
@@ -941,7 +941,7 @@
         "upload": false,
         "swaggerDoc": "",
         "x": 140,
-        "y": 80,
+        "y": 160,
         "wires": [
             [
                 "file_in_scada"
@@ -958,7 +958,7 @@
         "upload": false,
         "swaggerDoc": "",
         "x": 140,
-        "y": 120,
+        "y": 200,
         "wires": [
             [
                 "file_in_scada"
@@ -977,8 +977,8 @@
         "sendError": false,
         "encoding": "none",
         "allProps": false,
-        "x": 360,
-        "y": 100,
+        "x": 440,
+        "y": 180,
         "wires": [
             [
                 "http_resp_scada"
@@ -994,8 +994,8 @@
         "headers": {
             "content-type": "text/html; charset=utf-8"
         },
-        "x": 580,
-        "y": 100,
+        "x": 760,
+        "y": 180,
         "wires": []
     },
     {
@@ -1013,8 +1013,8 @@
         "resendOnRefresh": true,
         "templateScope": "local",
         "className": "",
-        "x": 400,
-        "y": 40,
+        "x": 760,
+        "y": 100,
         "wires": [
             []
         ]
@@ -1025,8 +1025,58 @@
         "z": "ca05771492c25f04",
         "name": "WEB SCADA CONSOLE: http://localhost:1880/scada",
         "info": "Click / open http://localhost:1880/scada to view the full 20-Floor Industrial Supervisory SCADA Panel.",
-        "x": 240,
-        "y": 40,
+        "x": 1040,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "sec_comment_1",
+        "type": "comment",
+        "z": "ca05771492c25f04",
+        "name": "================ [SECTION 1] SYSTEM INITIALIZATION & SCADA WEB SERVER ================",
+        "info": "Master system initialization and HTTP Web Server for Industrial SCADA Console (index.html).",
+        "x": 370,
+        "y": 50,
+        "wires": []
+    },
+    {
+        "id": "sec_comment_2",
+        "type": "comment",
+        "z": "ca05771492c25f04",
+        "name": "================ [SECTION 2] CENTRAL DISPATCH ENGINE & DUAL GATEWAY (MQTT + WEBSOCKET) ================",
+        "info": "Central supervisory cost calculation, safety prunings, and dual protocol broadcast.",
+        "x": 430,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "sec_comment_3",
+        "type": "comment",
+        "z": "ca05771492c25f04",
+        "name": "================ [SECTION 3] HALL UNIT HARDWARE TERMINAL (10s TIMER STATE MACHINE) ================",
+        "info": "Hall station keypad, RFID tap authentication and 10-second selection timeout state machine.",
+        "x": 410,
+        "y": 590,
+        "wires": []
+    },
+    {
+        "id": "sec_comment_4",
+        "type": "comment",
+        "z": "ca05771492c25f04",
+        "name": "================ [SECTION 4] 4-CAR PHYSICS ENGINE, WATCHDOG & MQTT TELEMETRY BUS ================",
+        "info": "Real-time 2s/floor kinematics simulation, 10s stop dwell, 3s heartbeat watchdog, and live telemetry broadcast.",
+        "x": 430,
+        "y": 880,
+        "wires": []
+    },
+    {
+        "id": "sec_comment_5",
+        "type": "comment",
+        "z": "ca05771492c25f04",
+        "name": "================ [SECTION 5] SAFETY CHAIN & FIRE EMERGENCY INTERLOCK ================",
+        "info": "Safety chain interlock switch triggering Phase I Fire Recall to Floor 01.",
+        "x": 370,
+        "y": 1050,
         "wires": []
     }
 ]
